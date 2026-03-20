@@ -1,0 +1,19 @@
+RewriteEngine On
+RewriteBase /
+
+# Direct file/directory access — skip rewriting
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# Clean URLs
+RewriteRule ^article/(.+)$   article.php?slug=$1   [L,QSA]
+RewriteRule ^section/(.+)$   section.php?s=$1       [L,QSA]
+RewriteRule ^staff/?$         staff.php              [L,QSA]
+RewriteRule ^about/?$         about.php              [L,QSA]
+RewriteRule ^search/?$        search.php             [L,QSA]
+RewriteRule ^contact/?$       contact.php            [L,QSA]
+RewriteRule ^subscribe/?$     subscribe.php          [L,QSA]
+RewriteRule ^privacy/?$       privacy.php            [L,QSA]
+RewriteRule ^terms/?$         terms.php              [L,QSA]
+RewriteRule ^rss/?$           rss.php                [L,QSA]

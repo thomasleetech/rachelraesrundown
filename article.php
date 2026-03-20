@@ -218,7 +218,7 @@ include __DIR__ . '/includes/header.php';
 <script>
 async function react(articleId, action, btn) {
   try {
-    const resp = await fetch('/api/reaction.php', {
+    const resp = await fetch('/reaction.php', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({article_id: articleId, action: action})
@@ -254,7 +254,7 @@ async function shareArticle(articleId, btn) {
     setTimeout(() => btn.querySelector('.label-text').textContent = 'Share', 2000);
   }
   // Record share action
-  fetch('/api/reaction.php', {
+  fetch('/reaction.php', {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
     body: JSON.stringify({article_id: articleId, action: 'share'})
