@@ -1,0 +1,57 @@
+# ============================================================
+# Rachel Rae's Rundown — Crontab Configuration
+# ============================================================
+#
+# HOW TO INSTALL:
+#   1. SSH into your server
+#   2. Run: crontab -e
+#   3. Paste the lines below (edit the paths to match your server)
+#   4. Save and exit
+#
+# VERIFY IT'S RUNNING:
+#   crontab -l          (list all cron jobs)
+#   tail -f /var/log/rrr_generate.log   (watch the generation log)
+#
+# YOUR PHP PATH (find it with: which php):
+#   /usr/bin/php   (common on Ubuntu/Debian)
+#   /usr/local/bin/php   (common on cPanel hosts)
+#
+# YOUR APP PATH (wherever you uploaded the files):
+#   /var/www/html/rachel.local
+#   /home/yourusername/public_html
+#
+# ============================================================
+# PASTE THESE INTO CRONTAB (edit paths first):
+# ============================================================
+
+# Generate new stories every 2 hours (runs ~12x/day)
+# Produces ~6 stories/day at default settings
+0 */2 * * * /usr/bin/php /var/www/html/rachel.local/cron/generate_stories.php >> /var/log/rrr_generate.log 2>&1
+
+# Publish scheduled articles every hour
+0 * * * * /usr/bin/php /var/www/html/rachel.local/cron/publish_scheduled.php >> /var/log/rrr_publish.log 2>&1
+
+# Queue social posts at 10pm every night (optional — disable if not using social)
+0 22 * * * /usr/bin/php /var/www/html/rachel.local/cron/social_queue.php >> /var/log/rrr_social.log 2>&1
+
+# Replenish topic queue when it runs low (runs at 6am daily)
+0 6 * * * /usr/bin/php /var/www/html/rachel.local/cron/replenish_queue.php >> /var/log/rrr_queue.log 2>&1
+
+# ============================================================
+# ON SHARED HOSTING (cPanel):
+# ============================================================
+# cPanel hosts don't give you direct crontab access.
+# Use: cPanel → Cron Jobs → Add New Cron Job
+# Set frequency using the dropdowns, command like:
+#   /usr/local/bin/php /home/yourusername/public_html/cron/generate_stories.php
+#
+# ============================================================
+# LOG ROTATION (optional, add to /etc/logrotate.d/rrr):
+# ============================================================
+# /var/log/rrr_*.log {
+#     daily
+#     rotate 7
+#     compress
+#     missingok
+#     notifempty
+# }

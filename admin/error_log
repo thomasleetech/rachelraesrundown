@@ -1,0 +1,60 @@
+[20-Mar-2026 00:31:00 UTC] PHP Warning:  require_once(/home/thomaslcpan1/rachelmoreno.com/admin/config.php): Failed to open stream: No such file or directory in /home/thomaslcpan1/rachelmoreno.com/admin/staff.php on line 6
+[20-Mar-2026 00:31:00 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home/thomaslcpan1/rachelmoreno.com/admin/config.php' (include_path='.:/opt/alt/php80/usr/share/pear:/opt/alt/php80/usr/share/php:/usr/share/pear:/usr/share/php') in /home/thomaslcpan1/rachelmoreno.com/admin/staff.php:6
+Stack trace:
+#0 {main}
+  thrown in /home/thomaslcpan1/rachelmoreno.com/admin/staff.php on line 6
+[20-Mar-2026 00:32:04 UTC] PHP Warning:  require_once(/home/thomaslcpan1/rachelmoreno.com/admin/config.php): Failed to open stream: No such file or directory in /home/thomaslcpan1/rachelmoreno.com/admin/staff.php on line 6
+[20-Mar-2026 00:32:04 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home/thomaslcpan1/rachelmoreno.com/admin/config.php' (include_path='.:/opt/alt/php80/usr/share/pear:/opt/alt/php80/usr/share/php:/usr/share/pear:/usr/share/php') in /home/thomaslcpan1/rachelmoreno.com/admin/staff.php:6
+Stack trace:
+#0 {main}
+  thrown in /home/thomaslcpan1/rachelmoreno.com/admin/staff.php on line 6
+[20-Mar-2026 00:32:05 UTC] PHP Warning:  require_once(/home/thomaslcpan1/rachelmoreno.com/admin/config.php): Failed to open stream: No such file or directory in /home/thomaslcpan1/rachelmoreno.com/admin/staff.php on line 6
+[20-Mar-2026 00:32:05 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home/thomaslcpan1/rachelmoreno.com/admin/config.php' (include_path='.:/opt/alt/php80/usr/share/pear:/opt/alt/php80/usr/share/php:/usr/share/pear:/usr/share/php') in /home/thomaslcpan1/rachelmoreno.com/admin/staff.php:6
+Stack trace:
+#0 {main}
+  thrown in /home/thomaslcpan1/rachelmoreno.com/admin/staff.php on line 6
+[20-Mar-2026 00:32:05 UTC] PHP Warning:  require_once(/home/thomaslcpan1/rachelmoreno.com/admin/config.php): Failed to open stream: No such file or directory in /home/thomaslcpan1/rachelmoreno.com/admin/staff.php on line 6
+[20-Mar-2026 00:32:05 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home/thomaslcpan1/rachelmoreno.com/admin/config.php' (include_path='.:/opt/alt/php80/usr/share/pear:/opt/alt/php80/usr/share/php:/usr/share/pear:/usr/share/php') in /home/thomaslcpan1/rachelmoreno.com/admin/staff.php:6
+Stack trace:
+#0 {main}
+  thrown in /home/thomaslcpan1/rachelmoreno.com/admin/staff.php on line 6
+[20-Mar-2026 00:32:06 UTC] PHP Warning:  require_once(/home/thomaslcpan1/rachelmoreno.com/admin/config.php): Failed to open stream: No such file or directory in /home/thomaslcpan1/rachelmoreno.com/admin/staff.php on line 6
+[20-Mar-2026 00:32:06 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home/thomaslcpan1/rachelmoreno.com/admin/config.php' (include_path='.:/opt/alt/php80/usr/share/pear:/opt/alt/php80/usr/share/php:/usr/share/pear:/usr/share/php') in /home/thomaslcpan1/rachelmoreno.com/admin/staff.php:6
+Stack trace:
+#0 {main}
+  thrown in /home/thomaslcpan1/rachelmoreno.com/admin/staff.php on line 6
+[20-Mar-2026 00:33:35 UTC] PHP Warning:  include(/home/thomaslcpan1/rachelmoreno.com/admin/includes/header.php): Failed to open stream: No such file or directory in /home/thomaslcpan1/rachelmoreno.com/admin/staff.php on line 53
+[20-Mar-2026 00:33:35 UTC] PHP Warning:  include(): Failed opening '/home/thomaslcpan1/rachelmoreno.com/admin/includes/header.php' for inclusion (include_path='.:/opt/alt/php80/usr/share/pear:/opt/alt/php80/usr/share/php:/usr/share/pear:/usr/share/php') in /home/thomaslcpan1/rachelmoreno.com/admin/staff.php on line 53
+[20-Mar-2026 00:33:35 UTC] PHP Warning:  include(/home/thomaslcpan1/rachelmoreno.com/admin/includes/footer.php): Failed to open stream: No such file or directory in /home/thomaslcpan1/rachelmoreno.com/admin/staff.php on line 215
+[20-Mar-2026 00:33:35 UTC] PHP Warning:  include(): Failed opening '/home/thomaslcpan1/rachelmoreno.com/admin/includes/footer.php' for inclusion (include_path='.:/opt/alt/php80/usr/share/pear:/opt/alt/php80/usr/share/php:/usr/share/pear:/usr/share/php') in /home/thomaslcpan1/rachelmoreno.com/admin/staff.php on line 215
+[20-Mar-2026 00:44:24 UTC] PHP Warning:  include(/home/thomaslcpan1/rachelmoreno.com/admin/includes/header.php): Failed to open stream: No such file or directory in /home/thomaslcpan1/rachelmoreno.com/admin/staff.php on line 53
+[20-Mar-2026 00:44:24 UTC] PHP Warning:  include(): Failed opening '/home/thomaslcpan1/rachelmoreno.com/admin/includes/header.php' for inclusion (include_path='.:/opt/alt/php80/usr/share/pear:/opt/alt/php80/usr/share/php:/usr/share/pear:/usr/share/php') in /home/thomaslcpan1/rachelmoreno.com/admin/staff.php on line 53
+[20-Mar-2026 00:44:24 UTC] PHP Warning:  include(/home/thomaslcpan1/rachelmoreno.com/admin/includes/footer.php): Failed to open stream: No such file or directory in /home/thomaslcpan1/rachelmoreno.com/admin/staff.php on line 215
+[20-Mar-2026 00:44:24 UTC] PHP Warning:  include(): Failed opening '/home/thomaslcpan1/rachelmoreno.com/admin/includes/footer.php' for inclusion (include_path='.:/opt/alt/php80/usr/share/pear:/opt/alt/php80/usr/share/php:/usr/share/pear:/usr/share/php') in /home/thomaslcpan1/rachelmoreno.com/admin/staff.php on line 215
+[20-Mar-2026 00:46:05 UTC] PHP Warning:  include(/home/thomaslcpan1/rachelmoreno.com/admin/includes/header.php): Failed to open stream: No such file or directory in /home/thomaslcpan1/rachelmoreno.com/admin/staff.php on line 53
+[20-Mar-2026 00:46:05 UTC] PHP Warning:  include(): Failed opening '/home/thomaslcpan1/rachelmoreno.com/admin/includes/header.php' for inclusion (include_path='.:/opt/alt/php80/usr/share/pear:/opt/alt/php80/usr/share/php:/usr/share/pear:/usr/share/php') in /home/thomaslcpan1/rachelmoreno.com/admin/staff.php on line 53
+[20-Mar-2026 00:46:05 UTC] PHP Warning:  include(/home/thomaslcpan1/rachelmoreno.com/admin/includes/footer.php): Failed to open stream: No such file or directory in /home/thomaslcpan1/rachelmoreno.com/admin/staff.php on line 215
+[20-Mar-2026 00:46:05 UTC] PHP Warning:  include(): Failed opening '/home/thomaslcpan1/rachelmoreno.com/admin/includes/footer.php' for inclusion (include_path='.:/opt/alt/php80/usr/share/pear:/opt/alt/php80/usr/share/php:/usr/share/pear:/usr/share/php') in /home/thomaslcpan1/rachelmoreno.com/admin/staff.php on line 215
+[20-Mar-2026 00:47:04 UTC] PHP Warning:  include(/home/thomaslcpan1/rachelmoreno.com/admin/includes/header.php): Failed to open stream: No such file or directory in /home/thomaslcpan1/rachelmoreno.com/admin/staff.php on line 53
+[20-Mar-2026 00:47:04 UTC] PHP Warning:  include(): Failed opening '/home/thomaslcpan1/rachelmoreno.com/admin/includes/header.php' for inclusion (include_path='.:/opt/alt/php80/usr/share/pear:/opt/alt/php80/usr/share/php:/usr/share/pear:/usr/share/php') in /home/thomaslcpan1/rachelmoreno.com/admin/staff.php on line 53
+[20-Mar-2026 00:47:04 UTC] PHP Warning:  include(/home/thomaslcpan1/rachelmoreno.com/admin/includes/footer.php): Failed to open stream: No such file or directory in /home/thomaslcpan1/rachelmoreno.com/admin/staff.php on line 215
+[20-Mar-2026 00:47:04 UTC] PHP Warning:  include(): Failed opening '/home/thomaslcpan1/rachelmoreno.com/admin/includes/footer.php' for inclusion (include_path='.:/opt/alt/php80/usr/share/pear:/opt/alt/php80/usr/share/php:/usr/share/pear:/usr/share/php') in /home/thomaslcpan1/rachelmoreno.com/admin/staff.php on line 215
+[20-Mar-2026 00:55:20 UTC] PHP Warning:  include(/home/thomaslcpan1/rachelmoreno.com/admin/includes/header.php): Failed to open stream: No such file or directory in /home/thomaslcpan1/rachelmoreno.com/admin/staff.php on line 53
+[20-Mar-2026 00:55:20 UTC] PHP Warning:  include(): Failed opening '/home/thomaslcpan1/rachelmoreno.com/admin/includes/header.php' for inclusion (include_path='.:/opt/alt/php80/usr/share/pear:/opt/alt/php80/usr/share/php:/usr/share/pear:/usr/share/php') in /home/thomaslcpan1/rachelmoreno.com/admin/staff.php on line 53
+[20-Mar-2026 00:55:20 UTC] PHP Warning:  include(/home/thomaslcpan1/rachelmoreno.com/admin/includes/footer.php): Failed to open stream: No such file or directory in /home/thomaslcpan1/rachelmoreno.com/admin/staff.php on line 215
+[20-Mar-2026 00:55:20 UTC] PHP Warning:  include(): Failed opening '/home/thomaslcpan1/rachelmoreno.com/admin/includes/footer.php' for inclusion (include_path='.:/opt/alt/php80/usr/share/pear:/opt/alt/php80/usr/share/php:/usr/share/pear:/usr/share/php') in /home/thomaslcpan1/rachelmoreno.com/admin/staff.php on line 215
+[20-Mar-2026 00:57:33 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/thomaslcpan1/rachelmoreno.com/admin/articles.php:115) in /home/thomaslcpan1/rachelmoreno.com/admin/articles.php on line 174
+[20-Mar-2026 00:57:36 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/thomaslcpan1/rachelmoreno.com/admin/articles.php:115) in /home/thomaslcpan1/rachelmoreno.com/admin/articles.php on line 174
+[20-Mar-2026 01:05:02 UTC] PHP Warning:  include(/home/thomaslcpan1/rachelmoreno.com/admin/includes/header.php): Failed to open stream: No such file or directory in /home/thomaslcpan1/rachelmoreno.com/admin/staff.php on line 53
+[20-Mar-2026 01:05:02 UTC] PHP Warning:  include(): Failed opening '/home/thomaslcpan1/rachelmoreno.com/admin/includes/header.php' for inclusion (include_path='.:/opt/alt/php80/usr/share/pear:/opt/alt/php80/usr/share/php:/usr/share/pear:/usr/share/php') in /home/thomaslcpan1/rachelmoreno.com/admin/staff.php on line 53
+[20-Mar-2026 01:05:02 UTC] PHP Warning:  include(/home/thomaslcpan1/rachelmoreno.com/admin/includes/footer.php): Failed to open stream: No such file or directory in /home/thomaslcpan1/rachelmoreno.com/admin/staff.php on line 215
+[20-Mar-2026 01:05:02 UTC] PHP Warning:  include(): Failed opening '/home/thomaslcpan1/rachelmoreno.com/admin/includes/footer.php' for inclusion (include_path='.:/opt/alt/php80/usr/share/pear:/opt/alt/php80/usr/share/php:/usr/share/pear:/usr/share/php') in /home/thomaslcpan1/rachelmoreno.com/admin/staff.php on line 215
+[20-Mar-2026 01:16:12 UTC] PHP Warning:  require_once(/home/thomaslcpan1/rachelmoreno.com/admin/config.php): Failed to open stream: No such file or directory in /home/thomaslcpan1/rachelmoreno.com/admin/articles.php on line 7
+[20-Mar-2026 01:16:12 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home/thomaslcpan1/rachelmoreno.com/admin/config.php' (include_path='.:/opt/alt/php80/usr/share/pear:/opt/alt/php80/usr/share/php:/usr/share/pear:/usr/share/php') in /home/thomaslcpan1/rachelmoreno.com/admin/articles.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/thomaslcpan1/rachelmoreno.com/admin/articles.php on line 7
+[20-Mar-2026 01:27:30 UTC] PHP Warning:  include(/home/thomaslcpan1/rachelmoreno.com/admin/includes/header.php): Failed to open stream: No such file or directory in /home/thomaslcpan1/rachelmoreno.com/admin/staff.php on line 53
+[20-Mar-2026 01:27:30 UTC] PHP Warning:  include(): Failed opening '/home/thomaslcpan1/rachelmoreno.com/admin/includes/header.php' for inclusion (include_path='.:/opt/alt/php80/usr/share/pear:/opt/alt/php80/usr/share/php:/usr/share/pear:/usr/share/php') in /home/thomaslcpan1/rachelmoreno.com/admin/staff.php on line 53
+[20-Mar-2026 01:27:30 UTC] PHP Warning:  include(/home/thomaslcpan1/rachelmoreno.com/admin/includes/footer.php): Failed to open stream: No such file or directory in /home/thomaslcpan1/rachelmoreno.com/admin/staff.php on line 215
+[20-Mar-2026 01:27:30 UTC] PHP Warning:  include(): Failed opening '/home/thomaslcpan1/rachelmoreno.com/admin/includes/footer.php' for inclusion (include_path='.:/opt/alt/php80/usr/share/pear:/opt/alt/php80/usr/share/php:/usr/share/pear:/usr/share/php') in /home/thomaslcpan1/rachelmoreno.com/admin/staff.php on line 215
