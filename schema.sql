@@ -124,6 +124,42 @@ CREATE TABLE IF NOT EXISTS topic_queue (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================
+-- VISITOR LOG (analytics)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS visitor_log (
+  id              INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  ip_address      VARCHAR(45) DEFAULT NULL,
+  user_agent      TEXT DEFAULT NULL,
+  page_path       VARCHAR(500) DEFAULT NULL,
+  article_id      INT UNSIGNED DEFAULT NULL,
+  referrer        VARCHAR(1000) DEFAULT NULL,
+  country         VARCHAR(100) DEFAULT NULL,
+  city            VARCHAR(200) DEFAULT NULL,
+  device_type     VARCHAR(50) DEFAULT NULL,
+  browser         VARCHAR(100) DEFAULT NULL,
+  os              VARCHAR(100) DEFAULT NULL,
+  session_id      VARCHAR(100) DEFAULT NULL,
+  visited_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_visited (visited_at),
+  INDEX idx_page (page_path(191)),
+  INDEX idx_article (article_id),
+  INDEX idx_ip (ip_address)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================================
+-- ARTICLE REACTIONS (like/dislike/share)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS article_reactions (
+  id          INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  article_id  INT UNSIGNED NOT NULL,
+  action_type ENUM('like','dislike','share') NOT NULL,
+  ip_address  VARCHAR(45) DEFAULT NULL,
+  created_at  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_article_action (article_id, action_type),
+  INDEX idx_ip (ip_address)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================================
 -- SEED: DEFAULT SETTINGS
 -- ============================================================
 INSERT INTO settings (`key`, `value`) VALUES

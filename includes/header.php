@@ -5,8 +5,14 @@
  * Nav dropdown categories are loaded from the settings table (configurable in admin).
  */
 if (!defined('DB_HOST')) require_once __DIR__ . '/../config.php';
+require_once __DIR__ . '/tracking.php';
 
 $pdo = getDB();
+
+// Track page visit (article.php handles its own tracking with article_id)
+if (basename($_SERVER['PHP_SELF']) !== 'article.php') {
+    trackVisit();
+}
 
 // Ticker: latest 12 headlines
 $tickerRows = $pdo->query(

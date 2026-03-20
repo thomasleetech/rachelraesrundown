@@ -45,6 +45,7 @@ if (!($_SESSION['rrr_admin'] ?? false)) { ?>
     <input type="password" name="password" placeholder="Password" autofocus>
     <button type="submit">Enter</button>
   </form>
+  <a href="/" style="display:block;margin-top:18px;color:#6A6460;font-size:11px;letter-spacing:0.08em;text-decoration:none;">← Back to site</a>
 </div>
 </body>
 </html>
@@ -123,6 +124,7 @@ a.act:hover{color:var(--gold);}
     <a href="/admin/generate.php">Generate</a>
     <a href="/admin/staff.php">Staff</a>
     <a href="/admin/settings.php">Settings</a>
+    <a href="/admin/analytics.php">Analytics</a>
     <a href="/admin/cron_log.php">Cron Log</a>
     <a href="/" target="_blank">View Site</a>
     <a href="/admin/?logout=1">Logout</a>

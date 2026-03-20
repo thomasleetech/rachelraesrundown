@@ -5,6 +5,7 @@
  * .htaccess rewrites: /article/(.+) → article.php?slug=$1
  */
 require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/includes/tracking.php';
 
 $slug = preg_replace('/[^a-z0-9\-]/', '', $_GET['slug'] ?? '');
 
@@ -37,9 +38,36 @@ if (!$article) {
     exit;
 }
 
-// Increment view counter (non-blocking)
+// Increment view counter
 $pdo->prepare('UPDATE articles SET views = views + 1 WHERE id = ?')
     ->execute([$article['id']]);
+
+// Track visit
+trackVisit('/article/' . $slug, (int)$article['id']);
+
+// Reaction counts
+$reactionCounts = ['like' => 0, 'dislike' => 0, 'share' => 0];
+try {
+    foreach (['like', 'dislike', 'share'] as $act) {
+        $rs = $pdo->prepare('SELECT COUNT(*) FROM article_reactions WHERE article_id = ? AND action_type = ?');
+        $rs->execute([$article['id'], $act]);
+        $reactionCounts[$act] = (int)$rs->fetchColumn();
+    }
+} catch (\Throwable $e) {
+    // Table may not exist yet
+}
+
+// Check user reaction state
+$ip = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? '';
+$ip = trim(explode(',', $ip)[0]);
+$userLiked = $userDisliked = false;
+try {
+    foreach (['like' => 'userLiked', 'dislike' => 'userDisliked'] as $act => $var) {
+        $rs = $pdo->prepare('SELECT COUNT(*) FROM article_reactions WHERE article_id = ? AND action_type = ? AND ip_address = ?');
+        $rs->execute([$article['id'], $act, $ip]);
+        $$var = (int)$rs->fetchColumn() > 0;
+    }
+} catch (\Throwable $e) {}
 
 // Related articles (same section, not this one)
 $related = $pdo->prepare(
@@ -103,14 +131,32 @@ include __DIR__ . '/includes/header.php';
       <?php endif; ?>
     </div>
 
-    <!-- Article body — already sanitized on insert -->
+    <!-- Article body -->
     <div style="font-family:'EB Garamond',serif;font-size:18px;line-height:1.85;color:var(--ink);">
       <?= $article['body'] ?>
     </div>
 
+    <!-- Like / Dislike / Share -->
+    <div class="article-actions" data-article-id="<?= $article['id'] ?>">
+      <button class="action-btn<?= $userLiked ? ' liked' : '' ?>" onclick="react(<?= $article['id'] ?>, 'like', this)" title="Like">
+        <span class="icon">&#x1F44D;</span>
+        <span class="count" id="count-like"><?= $reactionCounts['like'] ?></span>
+      </button>
+      <button class="action-btn<?= $userDisliked ? ' disliked' : '' ?>" onclick="react(<?= $article['id'] ?>, 'dislike', this)" title="Dislike">
+        <span class="icon">&#x1F44E;</span>
+        <span class="count" id="count-dislike"><?= $reactionCounts['dislike'] ?></span>
+      </button>
+      <span class="action-spacer"></span>
+      <button class="action-btn" onclick="shareArticle(<?= $article['id'] ?>, this)" title="Share">
+        <span class="icon">&#x1F517;</span>
+        <span class="count" id="count-share"><?= $reactionCounts['share'] ?></span>
+        <span class="label-text">Share</span>
+      </button>
+    </div>
+
     <!-- Tags -->
     <?php if ($tags): ?>
-    <div style="margin-top:32px;padding-top:16px;border-top:1px solid var(--light-gray);display:flex;flex-wrap:wrap;gap:8px;">
+    <div style="margin-top:24px;padding-top:16px;border-top:1px solid var(--light-gray);display:flex;flex-wrap:wrap;gap:8px;">
       <?php foreach ($tags as $tag): ?>
       <a href="/section/<?= e(strtolower($tag)) ?>"
          style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;padding:3px 10px;border:1px solid var(--light-gray);color:var(--warm-gray);text-decoration:none;">
@@ -152,13 +198,15 @@ include __DIR__ . '/includes/header.php';
     <div class="g3">
       <?php foreach ($relatedArticles as $r): ?>
       <div class="card">
-        <div class="card-img" style="font-size:40px;"><?= e($r['hero_emoji'] ?? '📰') ?></div>
+        <a href="/article/<?= e($r['slug']) ?>" style="text-decoration:none;display:block;">
+          <div class="card-img" style="font-size:40px;"><?= e($r['hero_emoji'] ?? '📰') ?></div>
+        </a>
         <h3>
           <a href="/article/<?= e($r['slug']) ?>" style="color:inherit;text-decoration:none;">
             <?= e($r['headline']) ?>
           </a>
         </h3>
-        <p><?= e($r['dek']) ?></p>
+        <a href="/article/<?= e($r['slug']) ?>" class="card-dek-link"><?= e($r['dek']) ?></a>
         <div class="byline">By <strong><?= e($r['author_name']) ?></strong></div>
       </div>
       <?php endforeach; ?>
@@ -166,5 +214,54 @@ include __DIR__ . '/includes/header.php';
   </div>
 </div>
 <?php endif; ?>
+
+<script>
+async function react(articleId, action, btn) {
+  try {
+    const resp = await fetch('/api/reaction.php', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({article_id: articleId, action: action})
+    });
+    const data = await resp.json();
+    if (data.counts) {
+      document.getElementById('count-like').textContent = data.counts.like;
+      document.getElementById('count-dislike').textContent = data.counts.dislike;
+      document.getElementById('count-share').textContent = data.counts.share;
+    }
+    if (data.user !== undefined) {
+      document.querySelectorAll('.action-btn').forEach(b => {
+        b.classList.remove('liked', 'disliked');
+      });
+      if (data.user.like) btn.closest('.article-actions').querySelector('[title="Like"]').classList.add('liked');
+      if (data.user.dislike) btn.closest('.article-actions').querySelector('[title="Dislike"]').classList.add('disliked');
+    }
+  } catch (e) {}
+}
+
+async function shareArticle(articleId, btn) {
+  const url = window.location.href;
+  const title = document.title;
+  if (navigator.share) {
+    try {
+      await navigator.share({title: title, url: url});
+    } catch (e) {
+      if (e.name === 'AbortError') return;
+    }
+  } else {
+    await navigator.clipboard.writeText(url).catch(() => {});
+    btn.querySelector('.label-text').textContent = 'Copied!';
+    setTimeout(() => btn.querySelector('.label-text').textContent = 'Share', 2000);
+  }
+  // Record share action
+  fetch('/api/reaction.php', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({article_id: articleId, action: 'share'})
+  }).then(r => r.json()).then(data => {
+    if (data.counts) document.getElementById('count-share').textContent = data.counts.share;
+  }).catch(() => {});
+}
+</script>
 
 <?php include __DIR__ . '/includes/footer.php'; ?>

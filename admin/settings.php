@@ -104,6 +104,7 @@ input[type=checkbox]{width:auto;}
 textarea{resize:vertical;min-height:60px;}
 button{background:var(--gd);color:#28241F;border:none;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;padding:9px 24px;cursor:pointer;margin-top:8px;}
 .msg{color:#5DC490;font-size:11px;margin-bottom:16px;}
+.collapsed{display:none;}
 .hint{font-size:10px;color:var(--mu);margin-top:3px;}
 /* Nav category editor */
 .nav-editor{margin-top:10px;}
@@ -133,7 +134,10 @@ button{background:var(--gd);color:#28241F;border:none;font-family:'DM Mono',mono
     </div>
 
     <div class="group">
-      <h2>Navigation Dropdowns</h2>
+      <h2 style="cursor:pointer;" onclick="document.getElementById('nav-cat-body').classList.toggle('collapsed');this.querySelector('.toggle-arrow').textContent=document.getElementById('nav-cat-body').classList.contains('collapsed')?'▶':'▼';">
+        Navigation Dropdowns <span class="toggle-arrow" style="font-size:12px;margin-left:8px;">▶</span>
+      </h2>
+      <div id="nav-cat-body" class="collapsed" style="">
       <div class="hint" style="margin-bottom:14px;">Configure the navigation bar dropdown menus. Each group becomes a top-level nav item with a dropdown. Items link to /section/&lt;slug&gt; unless a custom URL is specified.</div>
       <div class="nav-editor" id="nav-editor"></div>
       <div style="display:flex;gap:8px;margin-top:8px;">
@@ -141,6 +145,7 @@ button{background:var(--gd);color:#28241F;border:none;font-family:'DM Mono',mono
         <button type="button" class="btn-sm" onclick="resetNavDefaults()">Reset to Defaults</button>
       </div>
       <input type="hidden" name="nav_categories_json" id="nav-categories-json">
+      </div><!-- end nav-cat-body -->
     </div>
 
     <div class="group">

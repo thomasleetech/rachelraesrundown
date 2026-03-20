@@ -24,17 +24,15 @@ if (!defined('DB_HOST')) require_once __DIR__ . '/../config.php';
       <h4>The Paper</h4>
       <a href="/staff">Meet the Staff</a>
       <a href="/about">About Us</a>
-      <a href="/article/publishers-note">Publisher's Note</a>
-      <a href="/article/submit-a-tip">Submit a Tip</a>
-      <a href="/about#disclaimer">Disclaimer</a>
+      <a href="/subscribe">Subscribe</a>
       <a href="/rss">RSS Feed</a>
+      <a href="/privacy">Privacy Policy</a>
+      <a href="/terms">User Agreement</a>
     </div>
     <div class="ft-col">
       <h4>Contact</h4>
-      <a href="mailto:<?= siteMail('tips') ?>"><?= siteMail('tips') ?></a>
-      <a href="mailto:<?= siteMail('letters') ?>"><?= siteMail('letters') ?></a>
-      <a href="mailto:<?= siteMail('legal') ?>"><?= siteMail('legal') ?></a>
-      <a href="mailto:<?= siteMail('therapy') ?>"><?= siteMail('therapy') ?></a>
+      <a href="/contact">letters@<?= e(SITE_DOMAIN) ?></a>
+      <a href="/contact">contact@<?= e(SITE_DOMAIN) ?></a>
     </div>
   </div>
 </footer>

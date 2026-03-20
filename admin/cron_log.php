@@ -108,7 +108,7 @@ tr:hover td{background:#211F1A;}
 
     <?php if (!CRON_KEY): ?>
     <div class="no-key-warn">
-      ⚠ <strong>CRON_KEY not set.</strong> Add <code>CRON_KEY=your_secret_here</code> to your <code>.env</code> file to enable manual runs.
+      ⚠ <strong>CRON_KEY not set.</strong> Add <code>CRON_KEY=your_secret_here</code> to your <code>.env</code> file for automated cron runs. Manual runs from this panel still work.
     </div>
     <?php endif; ?>
 
@@ -118,8 +118,7 @@ tr:hover td{background:#211F1A;}
         <div class="job-name" style="color:<?=e($job['color'])?>"><?=e($job['label'])?></div>
         <div class="job-desc"><?=e($job['desc'])?></div>
         <button class="run-btn"
-                onclick="runJob('<?=e($jobKey)?>', '<?=e($job['file'])?>', this)"
-                <?=!CRON_KEY?'disabled':''?>>
+                onclick="runJob('<?=e($jobKey)?>', '<?=e($job['file'])?>', this)">
           ▶ Run Now
         </button>
       </div>
@@ -165,10 +164,7 @@ tr:hover td{background:#211F1A;}
 </div>
 
 <script>
-const CRON_KEY = <?=json_encode(CRON_KEY)?>;
-
 async function runJob(jobKey, jobFile, btn) {
-  if (!CRON_KEY) return;
 
   // Lock UI
   document.querySelectorAll('.run-btn').forEach(b => b.disabled = true);
@@ -194,7 +190,7 @@ async function runJob(jobKey, jobFile, btn) {
         'Content-Type': 'application/json',
         'X-Admin-Session': '1',
       },
-      body: JSON.stringify({ job: jobFile, key: CRON_KEY }),
+      body: JSON.stringify({ job: jobFile }),
     });
 
     if (!resp.ok) {

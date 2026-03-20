@@ -147,28 +147,30 @@ include __DIR__ . '/includes/header.php';
         <?= e($hero['headline']) ?>
       </a>
     </h1>
-    <div class="hero-img-box">
-      <?php if ($hero['hero_image']): ?>
-        <img src="/uploads/<?= e($hero['hero_image']) ?>" alt="<?= e($hero['headline']) ?>" style="width:100%;height:100%;object-fit:cover;">
-      <?php else: ?>
-        <div class="img-placeholder">
-          <span class="icon"><?= e($hero['hero_emoji'] ?? '📰') ?></span>
-        </div>
-      <?php endif; ?>
-    </div>
-    <div class="hero-dek"><?= e($hero['dek']) ?></div>
+    <a href="/article/<?= e($hero['slug']) ?>" style="text-decoration:none;display:block;">
+      <div class="hero-img-box">
+        <?php if ($hero['hero_image']): ?>
+          <img src="/uploads/<?= e($hero['hero_image']) ?>" alt="<?= e($hero['headline']) ?>" style="width:100%;height:100%;object-fit:cover;">
+        <?php else: ?>
+          <div class="img-placeholder">
+            <span class="icon"><?= e($hero['hero_emoji'] ?? '📰') ?></span>
+          </div>
+        <?php endif; ?>
+      </div>
+    </a>
+    <a href="/article/<?= e($hero['slug']) ?>" class="hero-dek-link"><?= e($hero['dek']) ?></a>
     <div class="byline">By <strong><?= e($hero['author_name']) ?></strong> · <?= e(ucfirst($hero['section'])) ?> · <?= fmtDate($hero['publish_at']) ?></div>
   </div>
   <div class="hero-sidebar">
     <?php foreach ($sidebar as $s): ?>
-    <div class="sidebar-item">
-      <div class="label <?= sectionLabelClass($s['section']) ?>"><?= e(ucfirst($s['section'])) ?></div>
-      <a href="/article/<?= e($s['slug']) ?>" style="text-decoration:none;">
+    <a href="/article/<?= e($s['slug']) ?>" class="sidebar-item-link">
+      <div class="sidebar-item">
+        <div class="label <?= sectionLabelClass($s['section']) ?>"><?= e(ucfirst($s['section'])) ?></div>
         <div class="sidebar-hed"><?= e($s['headline']) ?></div>
-      </a>
-      <div class="sidebar-dek"><?= e($s['dek']) ?></div>
-      <div class="byline" style="margin-top:8px;">By <strong><?= e($s['author_name']) ?></strong></div>
-    </div>
+        <div class="sidebar-dek"><?= e($s['dek']) ?></div>
+        <div class="byline" style="margin-top:8px;">By <strong><?= e($s['author_name']) ?></strong></div>
+      </div>
+    </a>
     <?php endforeach; ?>
   </div>
 </div>
@@ -185,10 +187,12 @@ include __DIR__ . '/includes/header.php';
   <div class="g3">
     <?php foreach ($politicsArticles as $a): ?>
     <div class="card">
-      <div class="card-img" style="background:#A8301820; font-size:50px;"><?= e($a['hero_emoji'] ?? '🏛️') ?></div>
+      <a href="/article/<?= e($a['slug']) ?>" style="text-decoration:none;display:block;">
+        <div class="card-img" style="background:#A8301820; font-size:50px;"><?= e($a['hero_emoji'] ?? '🏛️') ?></div>
+      </a>
       <div class="label label-red"><?= e(ucfirst($a['section'])) ?></div>
       <h3><a href="/article/<?= e($a['slug']) ?>" style="color:inherit;text-decoration:none;"><?= e($a['headline']) ?></a></h3>
-      <p><?= e($a['dek']) ?></p>
+      <a href="/article/<?= e($a['slug']) ?>" class="card-dek-link"><?= e($a['dek']) ?></a>
       <div class="byline">By <strong><?= e($a['author_name']) ?></strong> · <?= fmtDate($a['publish_at']) ?></div>
     </div>
     <?php endforeach; ?>
@@ -215,7 +219,7 @@ include __DIR__ . '/includes/header.php';
         </div>
       </div>
       <div class="op-hed"><a href="/article/<?= e($op['slug']) ?>" style="color:inherit;text-decoration:none;"><?= e($op['headline']) ?></a></div>
-      <div class="op-body"><?= e($op['dek']) ?></div>
+      <a href="/article/<?= e($op['slug']) ?>" class="op-body-link"><?= e($op['dek']) ?></a>
     </div>
     <?php endforeach; ?>
   </div>
@@ -233,10 +237,12 @@ include __DIR__ . '/includes/header.php';
   <div class="g4">
     <?php foreach ($cultureArticles as $a): ?>
     <div class="card">
-      <div class="card-img" style="background:#CC807020; font-size:44px;"><?= e($a['hero_emoji'] ?? '🎭') ?></div>
+      <a href="/article/<?= e($a['slug']) ?>" style="text-decoration:none;display:block;">
+        <div class="card-img" style="background:#CC807020; font-size:44px;"><?= e($a['hero_emoji'] ?? '🎭') ?></div>
+      </a>
       <div class="label <?= sectionLabelClass($a['section']) ?>"><?= e(ucfirst($a['section'])) ?></div>
       <h3><a href="/article/<?= e($a['slug']) ?>" style="color:inherit;text-decoration:none;"><?= e($a['headline']) ?></a></h3>
-      <p><?= e($a['dek']) ?></p>
+      <a href="/article/<?= e($a['slug']) ?>" class="card-dek-link"><?= e($a['dek']) ?></a>
       <div class="byline">By <strong><?= e($a['author_name']) ?></strong> · <?= fmtDate($a['publish_at']) ?></div>
     </div>
     <?php endforeach; ?>
@@ -250,10 +256,10 @@ include __DIR__ . '/includes/header.php';
   <div class="lb-head">✦ &nbsp; Late Breaking &nbsp; ✦</div>
   <div class="lb-grid">
     <?php foreach ($lbArticles as $lb): ?>
-    <div>
-      <div class="lb-hed"><a href="/article/<?= e($lb['slug']) ?>" style="color:inherit;text-decoration:none;"><?= e($lb['headline']) ?></a></div>
+    <a href="/article/<?= e($lb['slug']) ?>" style="text-decoration:none;display:block;">
+      <div class="lb-hed"><?= e($lb['headline']) ?></div>
       <div class="lb-dek"><?= e($lb['dek']) ?></div>
-    </div>
+    </a>
     <?php endforeach; ?>
   </div>
 </div>
@@ -270,20 +276,27 @@ include __DIR__ . '/includes/header.php';
   <div class="g3">
     <?php foreach ($religionArticles as $a): ?>
     <div class="card">
-      <div class="card-img" style="background:#27216130; font-size:46px;"><?= e($a['hero_emoji'] ?? '⛪') ?></div>
+      <a href="/article/<?= e($a['slug']) ?>" style="text-decoration:none;display:block;">
+        <div class="card-img" style="background:#27216130; font-size:46px;"><?= e($a['hero_emoji'] ?? '⛪') ?></div>
+      </a>
       <div class="label label-gold"><?= e(ucfirst($a['section'])) ?></div>
       <h3><a href="/article/<?= e($a['slug']) ?>" style="color:inherit;text-decoration:none;"><?= e($a['headline']) ?></a></h3>
-      <p><?= e($a['dek']) ?></p>
+      <a href="/article/<?= e($a['slug']) ?>" class="card-dek-link"><?= e($a['dek']) ?></a>
       <div class="byline">By <strong><?= e($a['author_name']) ?></strong> · <?= fmtDate($a['publish_at']) ?></div>
     </div>
     <?php endforeach; ?>
   </div>
   <?php endif; ?>
 
-  <!-- HOUSE AD -->
-  <div class="house-ad">
-    <p><strong>Rachel Rae's Rundown — Premium Subscription</strong>
-    Unlock more chaos, deeper satire, and exclusive access to our "Letters to Nobody" archive. Cancel anytime. We won't take it personally. (We will take it personally.)</p>
+  <!-- PREMIUM CTA -->
+  <div class="premium-cta">
+    <div class="premium-cta-inner">
+      <div class="premium-cta-badge">✦ PREMIUM ✦</div>
+      <h2 class="premium-cta-title">Rachel Rae's <em>Rundown</em> — Premium</h2>
+      <p class="premium-cta-text">Unlock more chaos, deeper satire, and exclusive access to our "Letters to Nobody" archive.<br>Cancel anytime. We won't take it personally. <em>(We will take it personally.)</em></p>
+      <div class="premium-cta-price">$4.20<span>/mo</span></div>
+      <a href="/subscribe" class="premium-cta-btn">Subscribe Now</a>
+    </div>
   </div>
 
   <!-- LGBTQ+ / PRIDE & PREJUDICE -->
@@ -296,10 +309,12 @@ include __DIR__ . '/includes/header.php';
   <div class="g3">
     <?php foreach ($lgbtqArticles as $a): ?>
     <div class="card">
-      <div class="card-img" style="background:#276B6130; font-size:46px;"><?= e($a['hero_emoji'] ?? '🏳️‍🌈') ?></div>
+      <a href="/article/<?= e($a['slug']) ?>" style="text-decoration:none;display:block;">
+        <div class="card-img" style="background:#276B6130; font-size:46px;"><?= e($a['hero_emoji'] ?? '🏳️‍🌈') ?></div>
+      </a>
       <div class="label label-teal"><?= e(ucfirst($a['section'])) ?></div>
       <h3><a href="/article/<?= e($a['slug']) ?>" style="color:inherit;text-decoration:none;"><?= e($a['headline']) ?></a></h3>
-      <p><?= e($a['dek']) ?></p>
+      <a href="/article/<?= e($a['slug']) ?>" class="card-dek-link"><?= e($a['dek']) ?></a>
       <div class="byline">By <strong><?= e($a['author_name']) ?></strong> · <?= fmtDate($a['publish_at']) ?></div>
     </div>
     <?php endforeach; ?>

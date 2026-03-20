@@ -2,7 +2,8 @@
 /**
  * Rachel Rae's Rundown — admin/cron_runner.php
  * Executes a cron PHP file via CLI and streams output back to the browser.
- * Called by cron_log.php via fetch(). Requires a valid CRON_KEY.
+ * Called by cron_log.php via fetch(). Requires admin session.
+ * Falls back to direct PHP include if CLI execution fails.
  */
 session_start();
 require_once __DIR__ . '/../config.php';
@@ -14,23 +15,8 @@ if (!($_SESSION['rrr_admin'] ?? false)) {
     exit;
 }
 
-// Must have a CRON_KEY configured
-if (!CRON_KEY) {
-    http_response_code(503);
-    echo 'CRON_KEY not configured. Add it to .env first.';
-    exit;
-}
-
 $input  = json_decode(file_get_contents('php://input'), true);
 $jobFile = $input['job'] ?? '';
-$key     = $input['key'] ?? '';
-
-// Validate key
-if ($key !== CRON_KEY) {
-    http_response_code(403);
-    echo 'Invalid key.';
-    exit;
-}
 
 // Whitelist — only allow known cron files, no path traversal
 $allowedJobs = [
@@ -56,17 +42,40 @@ if (!$absPath || !file_exists($absPath)) {
 
 // Stream output
 header('Content-Type: text/plain; charset=utf-8');
-header('X-Accel-Buffering: no'); // Disable nginx buffering
+header('X-Accel-Buffering: no');
 header('Cache-Control: no-cache');
 
 if (ob_get_level()) ob_end_flush();
 
+// Try CLI execution first
 $phpBin = PHP_BINARY ?: 'php';
-$cmd    = escapeshellarg($phpBin) . ' ' . escapeshellarg($absPath) . ' 2>&1';
+$envVars = '';
 
-$proc = popen($cmd, 'r');
+// Pass essential env vars to CLI process
+if (defined('DB_HOST'))   $envVars .= 'DB_HOST=' . escapeshellarg(DB_HOST) . ' ';
+if (defined('DB_NAME'))   $envVars .= 'DB_NAME=' . escapeshellarg(DB_NAME) . ' ';
+if (defined('DB_USER'))   $envVars .= 'DB_USER=' . escapeshellarg(DB_USER) . ' ';
+if (defined('DB_PASS'))   $envVars .= 'DB_PASS=' . escapeshellarg(DB_PASS) . ' ';
+if (defined('ANTHROPIC_API_KEY') && ANTHROPIC_API_KEY) $envVars .= 'ANTHROPIC_API_KEY=' . escapeshellarg(ANTHROPIC_API_KEY) . ' ';
+if (defined('FAL_API_KEY') && FAL_API_KEY) $envVars .= 'FAL_API_KEY=' . escapeshellarg(FAL_API_KEY) . ' ';
+if (defined('CRON_KEY') && CRON_KEY) $envVars .= 'CRON_KEY=' . escapeshellarg(CRON_KEY) . ' ';
+
+$cmd = $envVars . escapeshellarg($phpBin) . ' ' . escapeshellarg($absPath) . ' 2>&1';
+
+$proc = @popen($cmd, 'r');
 if (!$proc) {
-    echo "[ERROR] Failed to start process.\n";
+    // Fallback: include the file directly (for environments where popen is disabled)
+    echo "[INFO] CLI unavailable, running inline...\n";
+    ob_start();
+    try {
+        // Override CLI check by setting the header that cron scripts accept
+        $_SERVER['HTTP_X_CRON_KEY'] = CRON_KEY ?: 'admin-manual-run';
+        include $absPath;
+    } catch (\Throwable $e) {
+        echo "\n[ERR] " . $e->getMessage() . "\n";
+    }
+    $output = ob_get_clean();
+    echo $output;
     exit;
 }
 
@@ -78,4 +87,7 @@ while (!feof($proc)) {
     }
 }
 
-pclose($proc);
+$exitCode = pclose($proc);
+if ($exitCode !== 0) {
+    echo "\n[WARN] Process exited with code $exitCode\n";
+}
