@@ -9,8 +9,23 @@ if (!($_SESSION['rrr_admin'] ?? false)) { header('Location: /admin/'); exit; }
 
 $pdo      = getDB();
 $agents   = $pdo->query('SELECT id, slug, display_name, tier FROM staff WHERE is_active=1 ORDER BY sort_order')->fetchAll();
-$sections = ['politics','elections','national','world','local','culture','fashion',
-             'tech','film','music','religion','lgbtq','opinion','crime'];
+// Build sections list from nav categories setting (or use defaults)
+$navJson = getSetting('nav_categories', '');
+$navCats = $navJson ? json_decode($navJson, true) : null;
+$sections = [];
+if (is_array($navCats)) {
+    foreach ($navCats as $group) {
+        foreach ($group['items'] ?? [] as $item) {
+            if (!empty($item['section']) && !in_array($item['section'], $sections)) {
+                $sections[] = $item['section'];
+            }
+        }
+    }
+}
+if (!$sections) {
+    $sections = ['politics','elections','national','world','local','culture','fashion',
+                 'tech','film','music','religion','lgbtq','opinion','crime'];
+}
 
 // ---- AJAX endpoint ----
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '') === 'XMLHttpRequest') {

@@ -2,6 +2,7 @@
 /**
  * Rachel Rae's Rundown — includes/header.php
  * Shared across all public pages. Outputs everything above <main>.
+ * Nav dropdown categories are loaded from the settings table (configurable in admin).
  */
 if (!defined('DB_HOST')) require_once __DIR__ . '/../config.php';
 
@@ -26,6 +27,58 @@ if (!$tickerHtml) {
 // Current page for active nav state
 $currentFile = basename($_SERVER['PHP_SELF']);
 $currentSection = $_GET['s'] ?? '';
+
+// Load nav categories from settings (falls back to defaults if not configured)
+$navCategoriesJson = getSetting('nav_categories', '');
+$navCategories = $navCategoriesJson ? json_decode($navCategoriesJson, true) : null;
+if (!is_array($navCategories)) {
+    // Default categories matching the prototype
+    $navCategories = [
+        ['label' => 'News',    'items' => [
+            ['label' => 'Politics',       'section' => 'politics'],
+            ['label' => 'Elections',      'section' => 'elections'],
+            ['label' => 'National',       'section' => 'national'],
+            ['label' => 'World',          'section' => 'world'],
+            ['label' => 'Local SA',       'section' => 'local'],
+            ['label' => 'Crime & Chaos',  'section' => 'crime'],
+        ]],
+        ['label' => 'Culture', 'items' => [
+            ['label' => 'Pop Culture',    'section' => 'culture'],
+            ['label' => 'Fashion',        'section' => 'fashion'],
+            ['label' => 'Food & Drink',   'section' => 'food'],
+            ['label' => 'Music',          'section' => 'music'],
+            ['label' => 'Film',           'section' => 'film'],
+            ['label' => 'Tech',           'section' => 'tech'],
+        ]],
+        ['label' => 'Opinion', 'items' => [
+            ['label' => 'Hot Takes',              'section' => 'opinion'],
+            ['label' => 'Letters to Nobody',      'section' => 'letters'],
+            ['label' => 'Astrology (With Violence)', 'section' => 'astrology'],
+        ]],
+        ['label' => 'Religion', 'items' => [
+            ['label' => 'Vatican Updates',   'section' => 'religion'],
+            ['label' => 'Megachurch Watch',  'section' => 'megachurch'],
+            ['label' => 'Miracles & Myths',  'section' => 'miracles'],
+        ]],
+        ['label' => 'LGBTQ+', 'items' => [
+            ['label' => 'Pride & Prejudice', 'section' => 'lgbtq'],
+            ['label' => 'Drag Dispatch',     'section' => 'drag'],
+            ['label' => 'Policy Watch',      'section' => 'policy'],
+        ]],
+        ['label' => 'Cosmic', 'items' => [
+            ['label' => 'First Contact',       'section' => 'world'],
+            ['label' => 'Prophecy',            'section' => 'religion'],
+            ['label' => 'Time Travel',         'section' => 'culture'],
+            ['label' => 'Alternate Universes', 'section' => 'culture'],
+        ]],
+        ['label' => 'Staff', 'items' => [
+            ['label' => 'Meet the Team',      'url' => '/staff'],
+            ['label' => 'About the Rundown',  'url' => '/about'],
+            ['label' => "Publisher's Note",   'url' => '/article/publishers-note'],
+            ['label' => 'Submit a Tip',       'url' => '/article/submit-a-tip'],
+        ]],
+    ];
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -60,76 +113,19 @@ $currentSection = $_GET['s'] ?? '';
   <div class="nav-links">
     <div class="nav-item"><a href="/" <?= $currentFile==='index.php'?'style="color:var(--burnt-orange);"':'' ?>>Home</a></div>
 
+    <?php foreach ($navCategories as $group): ?>
     <div class="nav-item">
-      <a>News ▾</a>
+      <a><?= e($group['label']) ?> ▾</a>
       <div class="dropdown">
-        <a href="/section/politics">Politics</a>
-        <a href="/section/elections">Elections</a>
-        <a href="/section/national">National</a>
-        <a href="/section/world">World</a>
-        <a href="/section/local">Local SA</a>
-        <a href="/section/crime">Crime &amp; Chaos</a>
+        <?php foreach ($group['items'] ?? [] as $item): ?>
+          <?php
+            $href = isset($item['url']) ? $item['url'] : '/section/' . ($item['section'] ?? '');
+          ?>
+          <a href="<?= e($href) ?>"><?= e($item['label']) ?></a>
+        <?php endforeach; ?>
       </div>
     </div>
-
-    <div class="nav-item">
-      <a>Culture ▾</a>
-      <div class="dropdown">
-        <a href="/section/culture">Pop Culture</a>
-        <a href="/section/fashion">Fashion</a>
-        <a href="/section/food">Food &amp; Drink</a>
-        <a href="/section/music">Music</a>
-        <a href="/section/film">Film</a>
-        <a href="/section/tech">Tech</a>
-      </div>
-    </div>
-
-    <div class="nav-item">
-      <a>Opinion ▾</a>
-      <div class="dropdown">
-        <a href="/section/opinion">Hot Takes</a>
-        <a href="/section/letters">Letters to Nobody</a>
-        <a href="/section/astrology">Astrology (With Violence)</a>
-      </div>
-    </div>
-
-    <div class="nav-item">
-      <a>Religion ▾</a>
-      <div class="dropdown">
-        <a href="/section/religion">Vatican Updates</a>
-        <a href="/section/megachurch">Megachurch Watch</a>
-        <a href="/section/miracles">Miracles &amp; Myths</a>
-      </div>
-    </div>
-
-    <div class="nav-item">
-      <a>LGBTQ+ ▾</a>
-      <div class="dropdown">
-        <a href="/section/lgbtq">Pride &amp; Prejudice</a>
-        <a href="/section/drag">Drag Dispatch</a>
-        <a href="/section/policy">Policy Watch</a>
-      </div>
-    </div>
-
-    <div class="nav-item">
-      <a>Cosmic ▾</a>
-      <div class="dropdown">
-        <a href="/section/world">First Contact</a>
-        <a href="/section/religion">Prophecy</a>
-        <a href="/section/culture">Time Travel</a>
-        <a href="/section/culture">Alternate Universes</a>
-      </div>
-    </div>
-
-    <div class="nav-item">
-      <a>Staff ▾</a>
-      <div class="dropdown">
-        <a href="/staff">Meet the Team</a>
-        <a href="/about">About the Rundown</a>
-        <a href="/article/publishers-note">Publisher's Note</a>
-        <a href="/article/submit-a-tip">Submit a Tip</a>
-      </div>
-    </div>
+    <?php endforeach; ?>
 
     <div class="nav-item"><a href="/about">About</a></div>
     <div class="nav-item"><a href="/search">🔍</a></div>

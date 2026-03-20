@@ -8,7 +8,63 @@ if (!($_SESSION['rrr_admin'] ?? false)) { header('Location: /admin/'); exit; }
 $pdo = getDB();
 $msg = '';
 
+// Default nav categories (used if none saved yet)
+$defaultNavCategories = [
+    ['label' => 'News',    'items' => [
+        ['label' => 'Politics',       'section' => 'politics'],
+        ['label' => 'Elections',      'section' => 'elections'],
+        ['label' => 'National',       'section' => 'national'],
+        ['label' => 'World',          'section' => 'world'],
+        ['label' => 'Local SA',       'section' => 'local'],
+        ['label' => 'Crime & Chaos',  'section' => 'crime'],
+    ]],
+    ['label' => 'Culture', 'items' => [
+        ['label' => 'Pop Culture',    'section' => 'culture'],
+        ['label' => 'Fashion',        'section' => 'fashion'],
+        ['label' => 'Food & Drink',   'section' => 'food'],
+        ['label' => 'Music',          'section' => 'music'],
+        ['label' => 'Film',           'section' => 'film'],
+        ['label' => 'Tech',           'section' => 'tech'],
+    ]],
+    ['label' => 'Opinion', 'items' => [
+        ['label' => 'Hot Takes',              'section' => 'opinion'],
+        ['label' => 'Letters to Nobody',      'section' => 'letters'],
+        ['label' => 'Astrology (With Violence)', 'section' => 'astrology'],
+    ]],
+    ['label' => 'Religion', 'items' => [
+        ['label' => 'Vatican Updates',   'section' => 'religion'],
+        ['label' => 'Megachurch Watch',  'section' => 'megachurch'],
+        ['label' => 'Miracles & Myths',  'section' => 'miracles'],
+    ]],
+    ['label' => 'LGBTQ+', 'items' => [
+        ['label' => 'Pride & Prejudice', 'section' => 'lgbtq'],
+        ['label' => 'Drag Dispatch',     'section' => 'drag'],
+        ['label' => 'Policy Watch',      'section' => 'policy'],
+    ]],
+    ['label' => 'Cosmic', 'items' => [
+        ['label' => 'First Contact',       'section' => 'world'],
+        ['label' => 'Prophecy',            'section' => 'religion'],
+        ['label' => 'Time Travel',         'section' => 'culture'],
+        ['label' => 'Alternate Universes', 'section' => 'culture'],
+    ]],
+    ['label' => 'Staff', 'items' => [
+        ['label' => 'Meet the Team',      'url' => '/staff'],
+        ['label' => 'About the Rundown',  'url' => '/about'],
+        ['label' => "Publisher's Note",   'url' => '/article/publishers-note'],
+        ['label' => 'Submit a Tip',       'url' => '/article/submit-a-tip'],
+    ]],
+];
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Handle nav categories separately
+    if (isset($_POST['nav_categories_json'])) {
+        $navJson = trim($_POST['nav_categories_json']);
+        $parsed  = json_decode($navJson, true);
+        if (json_last_error() === JSON_ERROR_NONE && is_array($parsed)) {
+            setSetting('nav_categories', $navJson);
+        }
+    }
+
     $keys = ['site_name','site_tagline','stories_per_day','llm_model','llm_max_tokens',
              'auto_publish','publish_delay_hours','breaking_story_id','maintenance_mode',
              'social_queue_enabled','image_gen_enabled','admin_email',
@@ -22,6 +78,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 // Load all settings
 $allSettings = $pdo->query("SELECT `key`, `value` FROM settings ORDER BY `key`")->fetchAll(PDO::FETCH_KEY_PAIR);
 function sv(array $s, string $k, string $d=''): string { return htmlspecialchars($s[$k]??$d,ENT_QUOTES); }
+
+// Load current nav categories
+$navCategoriesRaw = $allSettings['nav_categories'] ?? '';
+$navCategories    = $navCategoriesRaw ? json_decode($navCategoriesRaw, true) : null;
+if (!is_array($navCategories)) $navCategories = $defaultNavCategories;
 ?>
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8"><title>Settings — Admin</title>
@@ -38,11 +99,23 @@ nav a:hover{color:var(--gd);}
 .group h2{font-family:'Cormorant Garamond',serif;color:var(--gd);font-size:20px;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--bd);}
 .field{margin-bottom:14px;}
 label{display:block;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--mu);margin-bottom:4px;}
-input,select{width:100%;background:#0E0C0A;border:1px solid var(--bd);color:var(--tx);font-family:'DM Mono',monospace;font-size:12px;padding:7px 10px;outline:none;}
+input,select,textarea{width:100%;background:#0E0C0A;border:1px solid var(--bd);color:var(--tx);font-family:'DM Mono',monospace;font-size:12px;padding:7px 10px;outline:none;}
 input[type=checkbox]{width:auto;}
+textarea{resize:vertical;min-height:60px;}
 button{background:var(--gd);color:#28241F;border:none;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;padding:9px 24px;cursor:pointer;margin-top:8px;}
 .msg{color:#5DC490;font-size:11px;margin-bottom:16px;}
 .hint{font-size:10px;color:var(--mu);margin-top:3px;}
+/* Nav category editor */
+.nav-editor{margin-top:10px;}
+.nav-group{background:#0E0C0A;border:1px solid var(--bd);padding:14px;margin-bottom:10px;position:relative;}
+.nav-group-header{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.nav-group-header input{flex:1;}
+.nav-item-row{display:flex;gap:8px;align-items:center;margin-bottom:6px;padding-left:16px;}
+.nav-item-row input{flex:1;}
+.btn-sm{background:var(--bd);color:var(--tx);border:none;font-family:'DM Mono',monospace;font-size:10px;padding:4px 10px;cursor:pointer;letter-spacing:0.06em;text-transform:uppercase;}
+.btn-sm:hover{background:var(--gd);color:#28241F;}
+.btn-danger{background:#6B2A1A;color:#D4A090;}
+.btn-danger:hover{background:#A83018;color:#fff;}
 </style>
 </head><body>
 <header><h1>Settings</h1>
@@ -50,13 +123,24 @@ button{background:var(--gd);color:#28241F;border:none;font-family:'DM Mono',mono
 </header>
 <div class="wrap">
   <?php if ($msg): ?><div class="msg"><?=e($msg)?></div><?php endif; ?>
-  <form method="post">
+  <form method="post" id="settings-form">
 
     <div class="group">
       <h2>Site Identity</h2>
       <div class="field"><label>Site Name</label><input name="site_name" value="<?=sv($allSettings,'site_name',"Rachel Rae's Rundown")?>"></div>
       <div class="field"><label>Tagline</label><input name="site_tagline" value="<?=sv($allSettings,'site_tagline')?>"></div>
       <div class="field"><label>Admin Email</label><input name="admin_email" value="<?=sv($allSettings,'admin_email', siteMail('rachel'))?>"></div>
+    </div>
+
+    <div class="group">
+      <h2>Navigation Dropdowns</h2>
+      <div class="hint" style="margin-bottom:14px;">Configure the navigation bar dropdown menus. Each group becomes a top-level nav item with a dropdown. Items link to /section/&lt;slug&gt; unless a custom URL is specified.</div>
+      <div class="nav-editor" id="nav-editor"></div>
+      <div style="display:flex;gap:8px;margin-top:8px;">
+        <button type="button" class="btn-sm" onclick="addNavGroup()">+ Add Dropdown</button>
+        <button type="button" class="btn-sm" onclick="resetNavDefaults()">Reset to Defaults</button>
+      </div>
+      <input type="hidden" name="nav_categories_json" id="nav-categories-json">
     </div>
 
     <div class="group">
@@ -115,7 +199,7 @@ button{background:var(--gd);color:#28241F;border:none;font-family:'DM Mono',mono
       <div class="field">
         <label>Auto-Generation Images per Story</label>
         <select name="cron_image_count">
-          <option value="0" <?=(sv($allSettings,'cron_image_count','0')==='0'?'selected':'')?>]>Agent decides (1–2)</option>
+          <option value="0" <?=(sv($allSettings,'cron_image_count','0')==='0'?'selected':'')?>>Agent decides (1-2)</option>
           <option value="1" <?=(sv($allSettings,'cron_image_count','0')==='1'?'selected':'')?>>Always 1</option>
           <option value="2" <?=(sv($allSettings,'cron_image_count','0')==='2'?'selected':'')?>>Always 2</option>
         </select>
@@ -124,4 +208,73 @@ button{background:var(--gd);color:#28241F;border:none;font-family:'DM Mono',mono
 
     <button type="submit">Save All Settings</button>
   </form>
-</div></body></html>
+</div>
+
+<script>
+// Nav category editor
+let navData = <?= json_encode($navCategories, JSON_UNESCAPED_UNICODE) ?>;
+const defaultNavData = <?= json_encode($defaultNavCategories, JSON_UNESCAPED_UNICODE) ?>;
+
+function renderNavEditor() {
+  const container = document.getElementById('nav-editor');
+  container.innerHTML = '';
+  navData.forEach((group, gi) => {
+    const div = document.createElement('div');
+    div.className = 'nav-group';
+    let itemsHtml = '';
+    (group.items || []).forEach((item, ii) => {
+      const sectionOrUrl = item.url ? item.url : (item.section || '');
+      const isUrl = !!item.url;
+      itemsHtml += `<div class="nav-item-row">
+        <input type="text" value="${esc(item.label)}" placeholder="Display label" onchange="updateItem(${gi},${ii},'label',this.value)" style="max-width:180px;">
+        <input type="text" value="${esc(sectionOrUrl)}" placeholder="${isUrl ? 'URL path' : 'section slug'}" onchange="updateItemTarget(${gi},${ii},this.value)" style="max-width:180px;">
+        <button type="button" class="btn-sm btn-danger" onclick="removeItem(${gi},${ii})">×</button>
+      </div>`;
+    });
+    div.innerHTML = `
+      <div class="nav-group-header">
+        <span style="color:var(--gd);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;">Dropdown ${gi+1}:</span>
+        <input type="text" value="${esc(group.label)}" placeholder="Menu label (e.g. News)" onchange="updateGroupLabel(${gi},this.value)">
+        <button type="button" class="btn-sm btn-danger" onclick="removeGroup(${gi})">Remove</button>
+      </div>
+      <div style="display:flex;gap:8px;padding-left:16px;margin-bottom:6px;">
+        <span style="font-size:9px;color:var(--mu);flex:1;max-width:180px;">LABEL</span>
+        <span style="font-size:9px;color:var(--mu);flex:1;max-width:180px;">SECTION SLUG OR URL</span>
+        <span style="width:36px;"></span>
+      </div>
+      ${itemsHtml}
+      <button type="button" class="btn-sm" onclick="addItem(${gi})" style="margin-left:16px;">+ Add Item</button>
+    `;
+    container.appendChild(div);
+  });
+  syncJson();
+}
+
+function esc(str) {
+  const d = document.createElement('div');
+  d.textContent = str || '';
+  return d.innerHTML.replace(/"/g, '&quot;');
+}
+
+function updateGroupLabel(gi, val) { navData[gi].label = val; syncJson(); }
+function updateItem(gi, ii, key, val) { navData[gi].items[ii][key] = val; syncJson(); }
+function updateItemTarget(gi, ii, val) {
+  if (val.startsWith('/')) {
+    delete navData[gi].items[ii].section;
+    navData[gi].items[ii].url = val;
+  } else {
+    delete navData[gi].items[ii].url;
+    navData[gi].items[ii].section = val;
+  }
+  syncJson();
+}
+function removeItem(gi, ii) { navData[gi].items.splice(ii, 1); renderNavEditor(); }
+function removeGroup(gi) { navData.splice(gi, 1); renderNavEditor(); }
+function addItem(gi) { navData[gi].items.push({label: '', section: ''}); renderNavEditor(); }
+function addNavGroup() { navData.push({label: 'New Menu', items: [{label: '', section: ''}]}); renderNavEditor(); }
+function resetNavDefaults() { navData = JSON.parse(JSON.stringify(defaultNavData)); renderNavEditor(); }
+function syncJson() { document.getElementById('nav-categories-json').value = JSON.stringify(navData); }
+
+renderNavEditor();
+</script>
+</body></html>
