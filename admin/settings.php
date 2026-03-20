@@ -4,6 +4,7 @@
  */
 session_start();
 require_once __DIR__ . '/../config.php';
+require_once __DIR__ . '/../includes/themes.php';
 if (!($_SESSION['rrr_admin'] ?? false)) { header('Location: /admin/'); exit; }
 $pdo = getDB();
 $msg = '';
@@ -12,7 +13,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $keys = ['site_name','site_tagline','stories_per_day','llm_model','llm_max_tokens',
              'auto_publish','publish_delay_hours','breaking_story_id','maintenance_mode',
              'social_queue_enabled','image_gen_enabled','admin_email',
-             'cron_story_length','cron_image_count'];
+             'cron_story_length','cron_image_count',
+             'site_theme','font_family','ticker_bg','ticker_color'];
     foreach ($keys as $k) {
         if (isset($_POST[$k])) setSetting($k, trim($_POST[$k]));
     }
@@ -40,6 +42,7 @@ nav a:hover{color:var(--gd);}
 label{display:block;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--mu);margin-bottom:4px;}
 input,select{width:100%;background:#0E0C0A;border:1px solid var(--bd);color:var(--tx);font-family:'DM Mono',monospace;font-size:12px;padding:7px 10px;outline:none;}
 input[type=checkbox]{width:auto;}
+input[type=color]{width:60px;height:32px;padding:2px;cursor:pointer;}
 button{background:var(--gd);color:#28241F;border:none;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;padding:9px 24px;cursor:pointer;margin-top:8px;}
 .msg{color:#5DC490;font-size:11px;margin-bottom:16px;}
 .hint{font-size:10px;color:var(--mu);margin-top:3px;}
@@ -51,6 +54,38 @@ button{background:var(--gd);color:#28241F;border:none;font-family:'DM Mono',mono
 <div class="wrap">
   <?php if ($msg): ?><div class="msg"><?=e($msg)?></div><?php endif; ?>
   <form method="post">
+
+    <div class="group">
+      <h2>Appearance</h2>
+      <div class="field">
+        <label>Theme</label>
+        <select name="site_theme">
+          <?php foreach ($THEMES as $tk => $tv): ?>
+          <option value="<?=$tk?>" <?=(sv($allSettings,'site_theme','default')===$tk?'selected':'')?>><?=e($tv['name'])?></option>
+          <?php endforeach; ?>
+        </select>
+        <div class="hint">Preview any theme by adding ?theme=rainbow (or galaxy, sunset, retro80s, walmart) to any page URL.</div>
+      </div>
+      <div class="field">
+        <label>Font Family</label>
+        <select name="font_family">
+          <?php foreach ($FONT_OPTIONS as $fk => $fv): ?>
+          <option value="<?=$fk?>" <?=(sv($allSettings,'font_family','default')===$fk?'selected':'')?>><?=e($fv['name'])?></option>
+          <?php endforeach; ?>
+        </select>
+        <div class="hint">Preview fonts by adding ?font=playfair or ?font=oldstandard to any page URL.</div>
+      </div>
+      <div class="field">
+        <label>Ticker Bar Background Color</label>
+        <input type="color" name="ticker_bg" value="<?=sv($allSettings,'ticker_bg','#28241F')?>">
+        <div class="hint">Background color of the scrolling headline ticker. Default: #28241F</div>
+      </div>
+      <div class="field">
+        <label>Ticker Bar Text Color</label>
+        <input type="color" name="ticker_color" value="<?=sv($allSettings,'ticker_color','#C8960F')?>">
+        <div class="hint">Text color of the scrolling headline ticker. Default: #C8960F</div>
+      </div>
+    </div>
 
     <div class="group">
       <h2>Site Identity</h2>

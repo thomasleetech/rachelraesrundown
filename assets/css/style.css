@@ -3,7 +3,7 @@
    Derived from prototype — rachelmoreno.com
    ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600&family=EB+Garamond:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600&family=EB+Garamond:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Lora:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Old+Standard+TT:ital,wght@0,400;0,700;1,400&family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400;1,600&display=swap');
 
 /* ============================================================
    CUSTOM PROPERTIES
@@ -24,6 +24,15 @@
   --rule-color:   #2C2825;
   --red-accent:   #A83018;
   --blush:        #CC8070;
+
+  /* Font families (overridable by theme/settings) */
+  --font-headline: 'Cormorant Garamond', Georgia, serif;
+  --font-body:     'EB Garamond', Georgia, serif;
+  --font-mono:     'DM Mono', monospace;
+
+  /* Ticker colors (overridable) */
+  --ticker-bg:    var(--charcoal);
+  --ticker-color: var(--mustard);
 }
 
 /* ============================================================
@@ -32,7 +41,7 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
-  font-family: 'EB Garamond', Georgia, serif;
+  font-family: var(--font-body);
   background: var(--cream);
   color: var(--ink);
   overflow-x: hidden;
@@ -42,18 +51,18 @@ body {
    TICKER
    ============================================================ */
 .ticker-wrap {
-  background: var(--charcoal);
+  background: var(--ticker-bg);
   overflow: hidden;
-  padding: 5px 0;
+  padding: 6px 0;
   border-bottom: 1px solid #000;
 }
 .ticker-inner {
   display: inline-block;
   white-space: nowrap;
   animation: scrollTicker 55s linear infinite;
-  font-family: 'DM Mono', monospace;
-  font-size: 11px;
-  color: var(--mustard);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--ticker-color);
   letter-spacing: 0.06em;
 }
 .ticker-inner span { margin: 0 48px; }
@@ -79,8 +88,8 @@ nav {
   align-items: center;
   padding: 5px 36px;
   border-bottom: 1px solid var(--light-gray);
-  font-family: 'DM Mono', monospace;
-  font-size: 10px;
+  font-family: var(--font-mono);
+  font-size: 11px;
   color: var(--warm-gray);
   letter-spacing: 0.07em;
 }
@@ -97,8 +106,8 @@ nav {
 .nav-item > a {
   display: block;
   padding: 11px 15px;
-  font-family: 'DM Mono', monospace;
-  font-size: 11px;
+  font-family: var(--font-mono);
+  font-size: 13px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--charcoal);
@@ -123,8 +132,8 @@ nav {
 .dropdown a {
   display: block;
   padding: 9px 16px;
-  font-family: 'DM Mono', monospace;
-  font-size: 11px;
+  font-family: var(--font-mono);
+  font-size: 13px;
   color: var(--charcoal);
   text-decoration: none;
   border-bottom: 1px solid var(--light-gray);
@@ -146,15 +155,15 @@ nav {
   position: relative;
 }
 .mast-eyebrow {
-  font-family: 'DM Mono', monospace;
-  font-size: 10px;
+  font-family: var(--font-mono);
+  font-size: 11px;
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--warm-gray);
   margin-bottom: 10px;
 }
 .mast-title {
-  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-family: var(--font-headline);
   font-weight: 600;
   font-size: clamp(46px, 8vw, 100px);
   line-height: 0.92;
@@ -172,9 +181,9 @@ nav {
   to   { opacity: 1; transform: translateY(0); }
 }
 .mast-tagline {
-  font-family: 'EB Garamond', Georgia, serif;
+  font-family: var(--font-body);
   font-style: italic;
-  font-size: 15px;
+  font-size: 17px;
   color: var(--warm-gray);
   margin-top: 8px;
   letter-spacing: 0.02em;
@@ -190,21 +199,21 @@ nav {
 .mast-meta {
   display: flex;
   justify-content: space-between;
-  font-family: 'DM Mono', monospace;
-  font-size: 10px;
+  font-family: var(--font-mono);
+  font-size: 11px;
   color: var(--warm-gray);
   letter-spacing: 0.08em;
 }
 .deco-bar {
   height: 5px;
-  background: repeating-linear-gradient(
+  background: var(--deco-bar-bg, repeating-linear-gradient(
     90deg,
     var(--burnt-orange) 0px,  var(--burnt-orange) 1px,
     var(--mustard)      1px,  var(--mustard)      2px,
     var(--teal)         2px,  var(--teal)         3px,
     var(--charcoal)     3px,  var(--charcoal)     4px,
     transparent         4px,  transparent         8px
-  );
+  ));
   animation: slideBar 1s ease-out both;
   transform-origin: left;
 }
@@ -222,8 +231,8 @@ nav {
   padding: 10px 36px;
 }
 .break-pill {
-  font-family: 'DM Mono', monospace;
-  font-size: 10px;
+  font-family: var(--font-mono);
+  font-size: 11px;
   letter-spacing: 0.15em;
   background: #fff;
   color: var(--red-accent);
@@ -233,8 +242,8 @@ nav {
 }
 @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
 .break-text {
-  font-family: 'Cormorant Garamond', Georgia, serif;
-  font-size: 17px;
+  font-family: var(--font-headline);
+  font-size: 19px;
   font-weight: 600;
   font-style: italic;
   letter-spacing: 0.01em;
@@ -254,8 +263,8 @@ nav {
   display: inline-block;
   white-space: nowrap;
   animation: scrollTicker 60s linear infinite;
-  font-family: 'DM Mono', monospace;
-  font-size: 11px;
+  font-family: var(--font-mono);
+  font-size: 13px;
   letter-spacing: 0.08em;
   color: var(--ink);
   text-transform: uppercase;
@@ -268,8 +277,8 @@ nav {
    ============================================================ */
 .label {
   display: inline-block;
-  font-family: 'DM Mono', monospace;
-  font-size: 9px;
+  font-family: var(--font-mono);
+  font-size: 10px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   padding: 2px 7px;
@@ -298,7 +307,7 @@ nav {
   background: var(--warm-white);
 }
 .hero-headline {
-  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-family: var(--font-headline);
   font-size: clamp(30px, 4vw, 52px);
   font-weight: 700;
   line-height: 1.08;
@@ -333,22 +342,22 @@ nav {
   margin-bottom: 10px;
 }
 .img-placeholder .caption {
-  font-family: 'EB Garamond', serif;
+  font-family: var(--font-body);
   font-style: italic;
-  font-size: 14px;
+  font-size: 15px;
   color: var(--warm-gray);
   line-height: 1.5;
   max-width: 420px;
 }
 .hero-dek {
-  font-size: 17px;
+  font-size: 19px;
   line-height: 1.7;
   color: var(--mid-gray);
   margin-bottom: 12px;
 }
 .byline {
-  font-family: 'DM Mono', monospace;
-  font-size: 10px;
+  font-family: var(--font-mono);
+  font-size: 12px;
   color: var(--warm-gray);
   letter-spacing: 0.06em;
 }
@@ -367,8 +376,8 @@ nav {
 }
 .sidebar-item:last-child { border-bottom: none; }
 .sidebar-hed {
-  font-family: 'Cormorant Garamond', Georgia, serif;
-  font-size: 19px;
+  font-family: var(--font-headline);
+  font-size: 21px;
   font-weight: 700;
   line-height: 1.25;
   color: var(--ink);
@@ -377,7 +386,7 @@ nav {
   transition: color 0.2s;
 }
 .sidebar-hed:hover { color: var(--burnt-orange); }
-.sidebar-dek { font-size: 13px; line-height: 1.55; color: var(--warm-gray); }
+.sidebar-dek { font-size: 15px; line-height: 1.55; color: var(--warm-gray); }
 
 /* ============================================================
    CONTENT WRAPPER
@@ -398,7 +407,7 @@ nav {
   margin-bottom: 24px;
 }
 .sec-title {
-  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-family: var(--font-headline);
   font-size: 26px;
   font-weight: 600;
   letter-spacing: 0.01em;
@@ -432,8 +441,8 @@ nav {
   opacity: 0.7;
 }
 .card h3 {
-  font-family: 'Cormorant Garamond', Georgia, serif;
-  font-size: 20px;
+  font-family: var(--font-headline);
+  font-size: 22px;
   font-weight: 700;
   line-height: 1.25;
   margin-bottom: 8px;
@@ -443,7 +452,7 @@ nav {
 }
 .card h3:hover { color: var(--burnt-orange); }
 .card p {
-  font-size: 14px;
+  font-size: 16px;
   line-height: 1.6;
   color: var(--warm-gray);
   margin-bottom: 10px;
@@ -458,8 +467,8 @@ nav {
   margin: 20px 0 0;
 }
 .op-strip-head {
-  font-family: 'DM Mono', monospace;
-  font-size: 10px;
+  font-family: var(--font-mono);
+  font-size: 11px;
   letter-spacing: 0.25em;
   color: var(--mustard);
   text-transform: uppercase;
@@ -474,12 +483,12 @@ nav {
   overflow: hidden;
   display: flex; align-items: center; justify-content: center;
 }
-.op-name { font-family: 'DM Mono', monospace; font-size: 11px; color: #E8E2D8; letter-spacing: 0.05em; }
-.op-role { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--warm-gray); letter-spacing: 0.04em; margin-top: 2px; }
+.op-name { font-family: var(--font-mono); font-size: 12px; color: #E8E2D8; letter-spacing: 0.05em; }
+.op-role { font-family: var(--font-mono); font-size: 11px; color: var(--warm-gray); letter-spacing: 0.04em; margin-top: 2px; }
 .op-hed {
-  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-family: var(--font-headline);
   font-style: italic;
-  font-size: 19px;
+  font-size: 21px;
   font-weight: 600;
   line-height: 1.3;
   color: var(--mustard);
@@ -487,10 +496,10 @@ nav {
   cursor: pointer;
 }
 .op-body {
-  font-size: 13px;
+  font-size: 15px;
   line-height: 1.65;
   color: #9E9890;
-  font-family: 'EB Garamond', serif;
+  font-family: var(--font-body);
 }
 
 /* ============================================================
@@ -502,8 +511,8 @@ nav {
   margin-bottom: 0;
 }
 .lb-head {
-  font-family: 'DM Mono', monospace;
-  font-size: 10px;
+  font-family: var(--font-mono);
+  font-size: 11px;
   letter-spacing: 0.22em;
   color: rgba(246,241,233,0.6);
   text-transform: uppercase;
@@ -511,8 +520,8 @@ nav {
 }
 .lb-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 24px; }
 .lb-hed {
-  font-family: 'Cormorant Garamond', Georgia, serif;
-  font-size: 17px;
+  font-family: var(--font-headline);
+  font-size: 19px;
   font-weight: 700;
   color: var(--cream);
   line-height: 1.3;
@@ -521,7 +530,7 @@ nav {
   transition: opacity 0.15s;
 }
 .lb-hed:hover { opacity: 0.8; }
-.lb-dek { font-size: 12px; color: rgba(246,241,233,0.65); line-height: 1.5; font-family: 'EB Garamond', serif; }
+.lb-dek { font-size: 14px; color: rgba(246,241,233,0.65); line-height: 1.5; font-family: var(--font-body); }
 
 /* ============================================================
    PULL QUOTE
@@ -533,9 +542,9 @@ nav {
   background: rgba(200,150,15,0.06);
 }
 .pull p {
-  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-family: var(--font-headline);
   font-style: italic;
-  font-size: 20px;
+  font-size: 22px;
   line-height: 1.4;
   color: var(--ink);
 }
@@ -551,13 +560,13 @@ nav {
   margin-bottom: 20px;
 }
 .house-ad p {
-  font-family: 'Cormorant Garamond', Georgia, serif;
-  font-size: 13px;
+  font-family: var(--font-headline);
+  font-size: 15px;
   color: var(--ink);
   line-height: 1.5;
 }
 .house-ad strong {
-  font-size: 16px;
+  font-size: 18px;
   display: block;
   margin-bottom: 4px;
   font-weight: 700;
@@ -572,18 +581,18 @@ nav {
   padding: 48px 40px 30px;
 }
 .staff-hero h1 {
-  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-family: var(--font-headline);
   font-size: 56px;
   font-weight: 700;
   color: var(--mustard);
   letter-spacing: -0.01em;
 }
 .staff-hero p {
-  font-family: 'EB Garamond', serif;
+  font-family: var(--font-body);
   font-style: italic;
   color: #9E9890;
   margin-top: 8px;
-  font-size: 16px;
+  font-size: 18px;
 }
 .staff-grid {
   display: grid;
@@ -612,21 +621,21 @@ nav {
 }
 .staff-info { padding: 18px 20px; }
 .staff-name {
-  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-family: var(--font-headline);
   font-size: 24px; font-weight: 700;
   color: var(--ink); margin-bottom: 2px;
 }
 .staff-role {
-  font-family: 'DM Mono', monospace;
-  font-size: 10px; letter-spacing: 0.12em;
+  font-family: var(--font-mono);
+  font-size: 11px; letter-spacing: 0.12em;
   color: var(--burnt-orange); text-transform: uppercase;
   margin-bottom: 12px;
 }
-.staff-bio { font-size: 13px; line-height: 1.65; color: var(--warm-gray); font-family: 'EB Garamond', serif; }
+.staff-bio { font-size: 15px; line-height: 1.65; color: var(--warm-gray); font-family: var(--font-body); }
 .staff-qt {
-  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-family: var(--font-headline);
   font-style: italic;
-  font-size: 14px; color: var(--ink);
+  font-size: 16px; color: var(--ink);
   margin-top: 10px; padding-top: 10px;
   border-top: 1px solid var(--light-gray);
   line-height: 1.5;
@@ -640,21 +649,109 @@ nav {
   padding: 56px 36px;
 }
 .about-wrap h1 {
-  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-family: var(--font-headline);
   font-size: 46px; font-weight: 700;
   color: var(--burnt-orange);
   margin-bottom: 20px;
 }
 .about-wrap p {
-  font-size: 17px; line-height: 1.8;
+  font-size: 19px; line-height: 1.8;
   margin-bottom: 18px; color: var(--charcoal);
-  font-family: 'EB Garamond', serif;
+  font-family: var(--font-body);
 }
 .about-wrap .disclaimer-box {
   background: var(--charcoal); color: var(--mustard);
-  padding: 22px; font-family: 'DM Mono', monospace;
-  font-size: 12px; line-height: 1.7;
+  padding: 22px; font-family: var(--font-mono);
+  font-size: 13px; line-height: 1.7;
   margin-top: 32px; letter-spacing: 0.03em;
+}
+
+/* ============================================================
+   CONTACT PAGE
+   ============================================================ */
+.contact-wrap {
+  max-width: 640px; margin: 0 auto;
+  padding: 48px 36px;
+}
+.contact-wrap h1 {
+  font-family: var(--font-headline);
+  font-size: 42px; font-weight: 700;
+  color: var(--burnt-orange);
+  margin-bottom: 8px;
+}
+.contact-wrap .contact-sub {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 17px;
+  color: var(--warm-gray);
+  margin-bottom: 28px;
+}
+.contact-form .form-field {
+  margin-bottom: 18px;
+}
+.contact-form label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--warm-gray);
+  margin-bottom: 5px;
+}
+.contact-form input,
+.contact-form select,
+.contact-form textarea {
+  width: 100%;
+  font-family: var(--font-body);
+  font-size: 16px;
+  padding: 10px 14px;
+  border: 1px solid var(--light-gray);
+  background: var(--warm-white);
+  color: var(--ink);
+  outline: none;
+  transition: border-color 0.2s;
+}
+.contact-form input:focus,
+.contact-form select:focus,
+.contact-form textarea:focus {
+  border-color: var(--burnt-orange);
+}
+.contact-form textarea {
+  min-height: 160px;
+  resize: vertical;
+}
+.contact-form button {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  background: var(--charcoal);
+  color: var(--mustard);
+  border: none;
+  padding: 12px 32px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.contact-form button:hover {
+  background: var(--burnt-orange);
+  color: #fff;
+}
+.contact-msg {
+  padding: 14px 18px;
+  margin-bottom: 20px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.05em;
+}
+.contact-msg.success {
+  background: #E8F5E9;
+  color: #2E7D32;
+  border: 1px solid #A5D6A7;
+}
+.contact-msg.error {
+  background: #FFEBEE;
+  color: #C62828;
+  border: 1px solid #EF9A9A;
 }
 
 /* ============================================================
@@ -683,35 +780,35 @@ nav {
   position: absolute; top: 14px; right: 18px;
   font-size: 22px; color: var(--warm-gray);
   cursor: pointer; background: none; border: none;
-  font-family: 'DM Mono', monospace; line-height: 1;
+  font-family: var(--font-mono); line-height: 1;
 }
 .modal-x:hover { color: var(--burnt-orange); }
 .modal-sec {
-  font-family: 'DM Mono', monospace; font-size: 10px;
+  font-family: var(--font-mono); font-size: 11px;
   letter-spacing: 0.15em; color: var(--burnt-orange);
   text-transform: uppercase; margin-bottom: 10px;
 }
 .modal-hed {
-  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-family: var(--font-headline);
   font-size: 34px; font-weight: 700;
   line-height: 1.12; color: var(--ink);
   margin-bottom: 10px;
 }
 .modal-dek {
-  font-size: 17px; color: var(--warm-gray);
+  font-size: 19px; color: var(--warm-gray);
   font-style: italic; line-height: 1.6;
   margin-bottom: 14px;
-  font-family: 'EB Garamond', serif;
+  font-family: var(--font-body);
 }
 .modal-byl {
-  font-family: 'DM Mono', monospace; font-size: 10px;
+  font-family: var(--font-mono); font-size: 11px;
   color: var(--warm-gray); padding-bottom: 16px;
   border-bottom: 1px solid var(--light-gray); margin-bottom: 20px;
 }
 .modal-body p {
-  font-size: 16px; line-height: 1.85;
+  font-size: 18px; line-height: 1.85;
   margin-bottom: 16px; color: var(--charcoal);
-  font-family: 'EB Garamond', serif;
+  font-family: var(--font-body);
 }
 .modal-img {
   width: 100%; height: 180px;
@@ -739,20 +836,20 @@ footer {
   margin-bottom: 20px;
 }
 .ft-brand h2 {
-  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-family: var(--font-headline);
   font-size: 38px; font-weight: 700;
   color: var(--mustard); margin-bottom: 10px;
 }
-.ft-brand p { font-size: 13px; color: #888; line-height: 1.65; font-family: 'EB Garamond', serif; }
+.ft-brand p { font-size: 15px; color: #888; line-height: 1.65; font-family: var(--font-body); }
 .ft-col h4 {
-  font-family: 'DM Mono', monospace;
-  font-size: 10px; letter-spacing: 0.16em;
+  font-family: var(--font-mono);
+  font-size: 11px; letter-spacing: 0.16em;
   color: var(--mustard); text-transform: uppercase; margin-bottom: 14px;
 }
 .ft-col a {
-  display: block; font-size: 13px; color: #999;
+  display: block; font-size: 15px; color: #999;
   text-decoration: none; margin-bottom: 8px; cursor: pointer;
-  font-family: 'EB Garamond', serif;
+  font-family: var(--font-body);
   transition: color 0.15s;
 }
 .ft-col a:hover { color: var(--cream); }
@@ -766,8 +863,8 @@ footer {
   text-align: center;
 }
 .footnote p {
-  font-family: 'DM Mono', monospace;
-  font-size: 10px;
+  font-family: var(--font-mono);
+  font-size: 11px;
   color: #5A5650;
   line-height: 1.8;
   letter-spacing: 0.04em;

@@ -4,6 +4,7 @@
  * Shared across all public pages. Outputs everything above <main>.
  */
 if (!defined('DB_HOST')) require_once __DIR__ . '/../config.php';
+require_once __DIR__ . '/themes.php';
 
 $pdo = getDB();
 
@@ -26,6 +27,48 @@ if (!$tickerHtml) {
 // Current page for active nav state
 $currentFile = basename($_SERVER['PHP_SELF']);
 $currentSection = $_GET['s'] ?? '';
+
+// ---- Customization: Theme, Font, Ticker colors ----
+// URL params override saved settings
+$activeTheme = $_GET['theme'] ?? getSetting('site_theme', 'default');
+if (!isset($THEMES[$activeTheme])) $activeTheme = 'default';
+
+$activeFont = $_GET['font'] ?? getSetting('font_family', 'default');
+if (!isset($FONT_OPTIONS[$activeFont])) $activeFont = 'default';
+
+$tickerBg    = isset($_GET['ticker_bg'])    ? '#' . preg_replace('/[^a-fA-F0-9]/', '', $_GET['ticker_bg'])    : getSetting('ticker_bg', '');
+$tickerColor = isset($_GET['ticker_color']) ? '#' . preg_replace('/[^a-fA-F0-9]/', '', $_GET['ticker_color']) : getSetting('ticker_color', '');
+
+// Build CSS overrides
+$cssOverrides = [];
+
+// Theme overrides
+if ($activeTheme !== 'default' && !empty($THEMES[$activeTheme]['vars'])) {
+    foreach ($THEMES[$activeTheme]['vars'] as $prop => $val) {
+        $cssOverrides[] = "$prop: $val;";
+    }
+}
+
+// Font overrides
+if ($activeFont !== 'default') {
+    $f = $FONT_OPTIONS[$activeFont];
+    $cssOverrides[] = "--font-headline: {$f['headline']};";
+    $cssOverrides[] = "--font-body: {$f['body']};";
+    $cssOverrides[] = "--font-mono: {$f['mono']};";
+}
+
+// Ticker color overrides (only if not already set by theme)
+if ($tickerBg && $activeTheme === 'default') {
+    $cssOverrides[] = "--ticker-bg: $tickerBg;";
+}
+if ($tickerColor && $activeTheme === 'default') {
+    $cssOverrides[] = "--ticker-color: $tickerColor;";
+}
+
+$cssBlock = '';
+if ($cssOverrides) {
+    $cssBlock = "<style>:root {\n  " . implode("\n  ", $cssOverrides) . "\n}</style>";
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -40,8 +83,9 @@ $currentSection = $_GET['s'] ?? '';
 <meta property="og:url" content="<?= e(SITE_URL . $_SERVER['REQUEST_URI']) ?>">
 <link rel="canonical" href="<?= e(SITE_URL . strtok($_SERVER['REQUEST_URI'],'?')) ?>">
 <link rel="alternate" type="application/rss+xml" title="Rachel Rae's Rundown" href="/rss">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600&family=EB+Garamond:ital,wght@0,400;0,500;0,700;1,400;1,500&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600&family=EB+Garamond:ital,wght@0,400;0,500;0,700;1,400;1,500&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Lora:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Old+Standard+TT:ital,wght@0,400;0,700;1,400&family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/assets/css/style.css">
+<?= $cssBlock ?>
 </head>
 <body>
 
@@ -127,7 +171,7 @@ $currentSection = $_GET['s'] ?? '';
         <a href="/staff">Meet the Team</a>
         <a href="/about">About the Rundown</a>
         <a href="/article/publishers-note">Publisher's Note</a>
-        <a href="/article/submit-a-tip">Submit a Tip</a>
+        <a href="/contact">Contact Us</a>
       </div>
     </div>
 
@@ -150,7 +194,7 @@ $currentSection = $_GET['s'] ?? '';
   <div class="mast-meta">
     <span><?= date('l, F j, Y') ?></span>
     <span><?= e(SITE_DOMAIN) ?></span>
-    <span>Price: Your Last Remaining Illusion</span>
+    <span>Price: $4.20</span>
   </div>
 </div>
 <div class="deco-bar"></div>
