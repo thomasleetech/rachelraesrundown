@@ -121,7 +121,9 @@ select,textarea{width:100%;background:#0E0C0A;border:1px solid var(--bd);color:v
   <h1>Generate Story</h1>
   <nav>
     <a href="/admin/">Dashboard</a><a href="/admin/articles.php">Articles</a>
-    <a href="/admin/generate.php">Generate</a><a href="/admin/settings.php">Settings</a>
+    <a href="/admin/generate.php">Generate</a><a href="/admin/staff.php">Staff</a>
+    <a href="/admin/settings.php">Settings</a><a href="/admin/analytics.php">Analytics</a>
+    <a href="/admin/cron_log.php">Cron Log</a><a href="/" target="_blank">View Site</a>
     <a href="/admin/?logout=1">Logout</a>
   </nav>
 </header>

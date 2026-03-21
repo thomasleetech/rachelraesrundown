@@ -15,6 +15,12 @@ if (!($_SESSION['rrr_admin'] ?? false)) {
     exit;
 }
 
+// GET requests — redirect to cron log page (this endpoint is POST-only)
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    header('Location: /admin/cron_log.php');
+    exit;
+}
+
 $input  = json_decode(file_get_contents('php://input'), true);
 $jobFile = $input['job'] ?? '';
 

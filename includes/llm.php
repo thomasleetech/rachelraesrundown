@@ -253,12 +253,71 @@ function downloadAndSaveImage(string $url, string $prefix = 'img'): ?string {
 }
 
 // ============================================================
-// CORE LLM CALL
+// MODEL REGISTRY — pricing per 1M tokens [input, output]
 // ============================================================
 
-function callClaude(string $systemPrompt, string $userPrompt, int $maxTokens = 2048): array {
-    $model = getSetting('llm_model', 'claude-sonnet-4-6');
+const MODEL_REGISTRY = [
+    // Anthropic
+    'claude-opus-4-6'             => ['provider' => 'anthropic', 'label' => 'Claude Opus 4.6',           'input' => 15.0,  'output' => 75.0],
+    'claude-sonnet-4-6'           => ['provider' => 'anthropic', 'label' => 'Claude Sonnet 4.6',         'input' => 3.0,   'output' => 15.0],
+    'claude-haiku-4-5-20251001'   => ['provider' => 'anthropic', 'label' => 'Claude Haiku 4.5',          'input' => 0.80,  'output' => 4.0],
+    // OpenAI
+    'gpt-4o'                      => ['provider' => 'openai',    'label' => 'GPT-4o',                    'input' => 2.50,  'output' => 10.0],
+    'gpt-4o-mini'                 => ['provider' => 'openai',    'label' => 'GPT-4o Mini',               'input' => 0.15,  'output' => 0.60],
+    'gpt-4.1'                     => ['provider' => 'openai',    'label' => 'GPT-4.1',                   'input' => 2.0,   'output' => 8.0],
+    'gpt-4.1-mini'                => ['provider' => 'openai',    'label' => 'GPT-4.1 Mini',              'input' => 0.40,  'output' => 1.60],
+    'gpt-4.1-nano'                => ['provider' => 'openai',    'label' => 'GPT-4.1 Nano',              'input' => 0.10,  'output' => 0.40],
+    'o3'                          => ['provider' => 'openai',    'label' => 'o3 (reasoning)',             'input' => 2.0,   'output' => 8.0],
+    'o4-mini'                     => ['provider' => 'openai',    'label' => 'o4-mini (reasoning)',        'input' => 1.10,  'output' => 4.40],
+    // Mistral
+    'mistral-large-latest'        => ['provider' => 'mistral',   'label' => 'Mistral Large',             'input' => 2.0,   'output' => 6.0],
+    'mistral-small-latest'        => ['provider' => 'mistral',   'label' => 'Mistral Small',             'input' => 0.20,  'output' => 0.60],
+    'open-mistral-nemo'           => ['provider' => 'mistral',   'label' => 'Mistral Nemo',              'input' => 0.15,  'output' => 0.15],
+    // OpenRouter (meta models)
+    'openrouter/meta-llama/llama-4-maverick'  => ['provider' => 'openrouter', 'label' => 'Llama 4 Maverick', 'input' => 0.50, 'output' => 0.70],
+    'openrouter/meta-llama/llama-4-scout'     => ['provider' => 'openrouter', 'label' => 'Llama 4 Scout',    'input' => 0.15, 'output' => 0.40],
+    'openrouter/google/gemini-2.5-pro'        => ['provider' => 'openrouter', 'label' => 'Gemini 2.5 Pro',   'input' => 1.25, 'output' => 10.0],
+    'openrouter/google/gemini-2.5-flash'      => ['provider' => 'openrouter', 'label' => 'Gemini 2.5 Flash', 'input' => 0.15, 'output' => 0.60],
+    'openrouter/deepseek/deepseek-r1'         => ['provider' => 'openrouter', 'label' => 'DeepSeek R1',      'input' => 0.55, 'output' => 2.19],
+    'openrouter/x-ai/grok-3'                  => ['provider' => 'openrouter', 'label' => 'Grok 3',           'input' => 3.0,  'output' => 15.0],
+];
 
+function getModelInfo(string $model): array {
+    return MODEL_REGISTRY[$model] ?? ['provider' => 'unknown', 'label' => $model, 'input' => 3.0, 'output' => 15.0];
+}
+
+function calculateCost(string $model, int $inputTokens, int $outputTokens): float {
+    $info = getModelInfo($model);
+    return round(($inputTokens * $info['input'] / 1000000) + ($outputTokens * $info['output'] / 1000000), 6);
+}
+
+// ============================================================
+// CORE LLM CALL — multi-provider
+// ============================================================
+
+function callLLM(string $systemPrompt, string $userPrompt, int $maxTokens = 2048): array {
+    $model = getSetting('llm_model', 'claude-sonnet-4-6');
+    $info  = getModelInfo($model);
+
+    switch ($info['provider']) {
+        case 'openai':
+            return callOpenAI($model, $systemPrompt, $userPrompt, $maxTokens);
+        case 'mistral':
+            return callMistral($model, $systemPrompt, $userPrompt, $maxTokens);
+        case 'openrouter':
+            return callOpenRouter($model, $systemPrompt, $userPrompt, $maxTokens);
+        case 'anthropic':
+        default:
+            return callAnthropic($model, $systemPrompt, $userPrompt, $maxTokens);
+    }
+}
+
+// Backwards compatibility
+function callClaude(string $systemPrompt, string $userPrompt, int $maxTokens = 2048): array {
+    return callLLM($systemPrompt, $userPrompt, $maxTokens);
+}
+
+function callAnthropic(string $model, string $systemPrompt, string $userPrompt, int $maxTokens): array {
     $payload = json_encode([
         'model'      => $model,
         'max_tokens' => $maxTokens,
@@ -271,7 +330,7 @@ function callClaude(string $systemPrompt, string $userPrompt, int $maxTokens = 2
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_POST           => true,
         CURLOPT_POSTFIELDS     => $payload,
-        CURLOPT_TIMEOUT        => 90,
+        CURLOPT_TIMEOUT        => 120,
         CURLOPT_HTTPHEADER     => [
             'Content-Type: application/json',
             'x-api-key: ' . ANTHROPIC_API_KEY,
@@ -296,13 +355,174 @@ function callClaude(string $systemPrompt, string $userPrompt, int $maxTokens = 2
     $text         = $data['content'][0]['text'] ?? '';
     $inputTokens  = $data['usage']['input_tokens']  ?? 0;
     $outputTokens = $data['usage']['output_tokens'] ?? 0;
-    $totalTokens  = $inputTokens + $outputTokens;
-    $costUsd      = ($inputTokens * 0.000003) + ($outputTokens * 0.000015);
 
     return [
-        'text'        => $text,
-        'tokens_used' => $totalTokens,
-        'cost_usd'    => round($costUsd, 6),
+        'text'         => $text,
+        'tokens_used'  => $inputTokens + $outputTokens,
+        'cost_usd'     => calculateCost($model, $inputTokens, $outputTokens),
+        'model'        => $model,
+        'provider'     => 'anthropic',
+    ];
+}
+
+function callOpenAI(string $model, string $systemPrompt, string $userPrompt, int $maxTokens): array {
+    $apiKey = $_ENV['OPENAI_API_KEY'] ?? '';
+    if (!$apiKey) throw new RuntimeException('OPENAI_API_KEY not set in .env');
+
+    $payload = json_encode([
+        'model'      => $model,
+        'max_tokens' => $maxTokens,
+        'messages'   => [
+            ['role' => 'system', 'content' => $systemPrompt],
+            ['role' => 'user',   'content' => $userPrompt],
+        ],
+    ]);
+
+    $ch = curl_init('https://api.openai.com/v1/chat/completions');
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_POST           => true,
+        CURLOPT_POSTFIELDS     => $payload,
+        CURLOPT_TIMEOUT        => 120,
+        CURLOPT_HTTPHEADER     => [
+            'Content-Type: application/json',
+            'Authorization: Bearer ' . $apiKey,
+        ],
+    ]);
+
+    $raw      = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curlErr  = curl_error($ch);
+    curl_close($ch);
+
+    if ($curlErr) throw new RuntimeException("cURL error: $curlErr");
+
+    $data = json_decode($raw, true);
+
+    if ($httpCode !== 200) {
+        $errMsg = $data['error']['message'] ?? $raw;
+        throw new RuntimeException("OpenAI API error ($httpCode): $errMsg");
+    }
+
+    $text         = $data['choices'][0]['message']['content'] ?? '';
+    $inputTokens  = $data['usage']['prompt_tokens']     ?? 0;
+    $outputTokens = $data['usage']['completion_tokens'] ?? 0;
+
+    return [
+        'text'         => $text,
+        'tokens_used'  => $inputTokens + $outputTokens,
+        'cost_usd'     => calculateCost($model, $inputTokens, $outputTokens),
+        'model'        => $model,
+        'provider'     => 'openai',
+    ];
+}
+
+function callMistral(string $model, string $systemPrompt, string $userPrompt, int $maxTokens): array {
+    $apiKey = $_ENV['MISTRAL_API_KEY'] ?? '';
+    if (!$apiKey) throw new RuntimeException('MISTRAL_API_KEY not set in .env');
+
+    $payload = json_encode([
+        'model'      => $model,
+        'max_tokens' => $maxTokens,
+        'messages'   => [
+            ['role' => 'system', 'content' => $systemPrompt],
+            ['role' => 'user',   'content' => $userPrompt],
+        ],
+    ]);
+
+    $ch = curl_init('https://api.mistral.ai/v1/chat/completions');
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_POST           => true,
+        CURLOPT_POSTFIELDS     => $payload,
+        CURLOPT_TIMEOUT        => 120,
+        CURLOPT_HTTPHEADER     => [
+            'Content-Type: application/json',
+            'Authorization: Bearer ' . $apiKey,
+        ],
+    ]);
+
+    $raw      = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curlErr  = curl_error($ch);
+    curl_close($ch);
+
+    if ($curlErr) throw new RuntimeException("cURL error: $curlErr");
+
+    $data = json_decode($raw, true);
+
+    if ($httpCode !== 200) {
+        $errMsg = $data['error']['message'] ?? $raw;
+        throw new RuntimeException("Mistral API error ($httpCode): $errMsg");
+    }
+
+    $text         = $data['choices'][0]['message']['content'] ?? '';
+    $inputTokens  = $data['usage']['prompt_tokens']     ?? 0;
+    $outputTokens = $data['usage']['completion_tokens'] ?? 0;
+
+    return [
+        'text'         => $text,
+        'tokens_used'  => $inputTokens + $outputTokens,
+        'cost_usd'     => calculateCost($model, $inputTokens, $outputTokens),
+        'model'        => $model,
+        'provider'     => 'mistral',
+    ];
+}
+
+function callOpenRouter(string $model, string $systemPrompt, string $userPrompt, int $maxTokens): array {
+    $apiKey = $_ENV['OPENROUTER_API_KEY'] ?? '';
+    if (!$apiKey) throw new RuntimeException('OPENROUTER_API_KEY not set in .env');
+
+    // Strip the "openrouter/" prefix for the API call
+    $apiModel = preg_replace('/^openrouter\//', '', $model);
+
+    $payload = json_encode([
+        'model'      => $apiModel,
+        'max_tokens' => $maxTokens,
+        'messages'   => [
+            ['role' => 'system', 'content' => $systemPrompt],
+            ['role' => 'user',   'content' => $userPrompt],
+        ],
+    ]);
+
+    $ch = curl_init('https://openrouter.ai/api/v1/chat/completions');
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_POST           => true,
+        CURLOPT_POSTFIELDS     => $payload,
+        CURLOPT_TIMEOUT        => 120,
+        CURLOPT_HTTPHEADER     => [
+            'Content-Type: application/json',
+            'Authorization: Bearer ' . $apiKey,
+            'HTTP-Referer: ' . SITE_URL,
+            'X-Title: Rachel Rae\'s Rundown',
+        ],
+    ]);
+
+    $raw      = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curlErr  = curl_error($ch);
+    curl_close($ch);
+
+    if ($curlErr) throw new RuntimeException("cURL error: $curlErr");
+
+    $data = json_decode($raw, true);
+
+    if ($httpCode !== 200) {
+        $errMsg = $data['error']['message'] ?? $raw;
+        throw new RuntimeException("OpenRouter API error ($httpCode): $errMsg");
+    }
+
+    $text         = $data['choices'][0]['message']['content'] ?? '';
+    $inputTokens  = $data['usage']['prompt_tokens']     ?? 0;
+    $outputTokens = $data['usage']['completion_tokens'] ?? 0;
+
+    return [
+        'text'         => $text,
+        'tokens_used'  => $inputTokens + $outputTokens,
+        'cost_usd'     => calculateCost($model, $inputTokens, $outputTokens),
+        'model'        => $model,
+        'provider'     => 'openrouter',
     ];
 }
 

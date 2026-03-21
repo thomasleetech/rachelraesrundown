@@ -96,8 +96,9 @@ tr:hover td{background:#211F1A;}
 <header><h1>Analytics</h1>
   <nav>
     <a href="/admin/">Dashboard</a><a href="/admin/articles.php">Articles</a>
-    <a href="/admin/generate.php">Generate</a><a href="/admin/settings.php">Settings</a>
-    <a href="/admin/analytics.php">Analytics</a><a href="/admin/cron_log.php">Cron Log</a>
+    <a href="/admin/generate.php">Generate</a><a href="/admin/staff.php">Staff</a>
+    <a href="/admin/settings.php">Settings</a><a href="/admin/analytics.php">Analytics</a>
+    <a href="/admin/cron_log.php">Cron Log</a><a href="/" target="_blank">View Site</a>
     <a href="/admin/?logout=1">Logout</a>
   </nav>
 </header>

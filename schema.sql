@@ -94,9 +94,11 @@ CREATE TABLE IF NOT EXISTS cron_log (
   error_msg           TEXT DEFAULT NULL,
   tokens_used         INT UNSIGNED NOT NULL DEFAULT 0,
   cost_usd            DECIMAL(8,4) NOT NULL DEFAULT 0.0000,
+  model_used          VARCHAR(200) DEFAULT NULL,
   ran_at              DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   INDEX idx_job_status (job_name, status),
-  INDEX idx_ran_at (ran_at)
+  INDEX idx_ran_at (ran_at),
+  INDEX idx_model (model_used)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================

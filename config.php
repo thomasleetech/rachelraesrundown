@@ -22,6 +22,9 @@ define('DB_PASS', $_ENV['DB_PASS'] ?? '');
 define('ANTHROPIC_API_KEY', $_ENV['ANTHROPIC_API_KEY'] ?? '');
 define('FAL_API_KEY',       $_ENV['FAL_API_KEY']       ?? '');
 define('CRON_KEY',          $_ENV['CRON_KEY']          ?? '');
+
+// Optional provider API keys (set in .env if using non-Anthropic models)
+// OPENAI_API_KEY, MISTRAL_API_KEY, OPENROUTER_API_KEY are read directly from $_ENV in llm.php
 define('SITE_URL',    $_ENV['SITE_URL']    ?? 'https://rachelmoreno.com');
 define('SITE_DOMAIN', parse_url(SITE_URL, PHP_URL_HOST) ?? 'rachelmoreno.com');
 
@@ -91,9 +94,16 @@ function e(string $str): string {
 }
 
 // Cron logging
-function logCron(string $job, string $status, int $generated = 0, int $published = 0, string $error = '', int $tokens = 0, float $cost = 0.0): void {
+function logCron(string $job, string $status, int $generated = 0, int $published = 0, string $error = '', int $tokens = 0, float $cost = 0.0, string $model = ''): void {
+    // Add model_used column if it doesn't exist yet (safe migration)
+    try {
+        getDB()->exec('ALTER TABLE cron_log ADD COLUMN model_used VARCHAR(200) DEFAULT NULL AFTER cost_usd');
+    } catch (PDOException $e) {
+        // Column already exists — ignore
+    }
+
     getDB()->prepare(
-        'INSERT INTO cron_log (job_name, status, articles_generated, articles_published, error_msg, tokens_used, cost_usd)
-         VALUES (?, ?, ?, ?, ?, ?, ?)'
-    )->execute([$job, $status, $generated, $published, $error, $tokens, $cost]);
+        'INSERT INTO cron_log (job_name, status, articles_generated, articles_published, error_msg, tokens_used, cost_usd, model_used)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
+    )->execute([$job, $status, $generated, $published, $error, $tokens, $cost, $model ?: null]);
 }

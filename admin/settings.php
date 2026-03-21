@@ -120,7 +120,7 @@ button{background:var(--gd);color:#28241F;border:none;font-family:'DM Mono',mono
 </style>
 </head><body>
 <header><h1>Settings</h1>
-  <nav><a href="/admin/">Dashboard</a><a href="/admin/articles.php">Articles</a><a href="/admin/generate.php">Generate</a><a href="/admin/settings.php">Settings</a><a href="/admin/cron_log.php">Cron Log</a><a href="/admin/?logout=1">Logout</a></nav>
+  <nav><a href="/admin/">Dashboard</a><a href="/admin/articles.php">Articles</a><a href="/admin/generate.php">Generate</a><a href="/admin/staff.php">Staff</a><a href="/admin/settings.php">Settings</a><a href="/admin/analytics.php">Analytics</a><a href="/admin/cron_log.php">Cron Log</a><a href="/" target="_blank">View Site</a><a href="/admin/?logout=1">Logout</a></nav>
 </header>
 <div class="wrap">
   <?php if ($msg): ?><div class="msg"><?=e($msg)?></div><?php endif; ?>
@@ -158,10 +158,46 @@ button{background:var(--gd);color:#28241F;border:none;font-family:'DM Mono',mono
       <div class="field">
         <label>LLM Model</label>
         <select name="llm_model">
-          <?php foreach (['claude-sonnet-4-6'=>'Claude Sonnet 4.6 (recommended)','claude-opus-4-6'=>'Claude Opus 4.6 (expensive)','claude-haiku-4-5-20251001'=>'Claude Haiku 4.5 (cheap)'] as $v=>$l): ?>
-          <option value="<?=$v?>" <?=(sv($allSettings,'llm_model','claude-sonnet-4-6')===$v?'selected':'')?>><?=e($l)?></option>
+          <?php
+          $modelGroups = [
+              'Anthropic' => [
+                  'claude-sonnet-4-6'           => 'Claude Sonnet 4.6 — $3/$15 (recommended)',
+                  'claude-opus-4-6'             => 'Claude Opus 4.6 — $15/$75 (premium)',
+                  'claude-haiku-4-5-20251001'   => 'Claude Haiku 4.5 — $0.80/$4 (budget)',
+              ],
+              'OpenAI' => [
+                  'gpt-4o'        => 'GPT-4o — $2.50/$10',
+                  'gpt-4o-mini'   => 'GPT-4o Mini — $0.15/$0.60 (budget)',
+                  'gpt-4.1'       => 'GPT-4.1 — $2/$8',
+                  'gpt-4.1-mini'  => 'GPT-4.1 Mini — $0.40/$1.60',
+                  'gpt-4.1-nano'  => 'GPT-4.1 Nano — $0.10/$0.40 (cheapest)',
+                  'o3'            => 'o3 (reasoning) — $2/$8',
+                  'o4-mini'       => 'o4-mini (reasoning) — $1.10/$4.40',
+              ],
+              'Mistral' => [
+                  'mistral-large-latest'  => 'Mistral Large — $2/$6',
+                  'mistral-small-latest'  => 'Mistral Small — $0.20/$0.60',
+                  'open-mistral-nemo'     => 'Mistral Nemo — $0.15/$0.15 (cheapest)',
+              ],
+              'OpenRouter' => [
+                  'openrouter/meta-llama/llama-4-maverick'  => 'Llama 4 Maverick — $0.50/$0.70',
+                  'openrouter/meta-llama/llama-4-scout'     => 'Llama 4 Scout — $0.15/$0.40',
+                  'openrouter/google/gemini-2.5-pro'        => 'Gemini 2.5 Pro — $1.25/$10',
+                  'openrouter/google/gemini-2.5-flash'      => 'Gemini 2.5 Flash — $0.15/$0.60',
+                  'openrouter/deepseek/deepseek-r1'         => 'DeepSeek R1 — $0.55/$2.19',
+                  'openrouter/x-ai/grok-3'                  => 'Grok 3 — $3/$15',
+              ],
+          ];
+          $currentModel = sv($allSettings, 'llm_model', 'claude-sonnet-4-6');
+          foreach ($modelGroups as $group => $models): ?>
+          <optgroup label="<?=e($group)?>">
+            <?php foreach ($models as $v => $l): ?>
+            <option value="<?=$v?>" <?=($currentModel === $v ? 'selected' : '')?>><?=e($l)?></option>
+            <?php endforeach; ?>
+          </optgroup>
           <?php endforeach; ?>
         </select>
+        <div class="hint">Prices shown as input/output per 1M tokens. Non-Anthropic models require their API key in .env (OPENAI_API_KEY, MISTRAL_API_KEY, OPENROUTER_API_KEY).</div>
       </div>
       <div class="field"><label>Max tokens per story</label><input name="llm_max_tokens" type="number" min="500" max="4096" value="<?=sv($allSettings,'llm_max_tokens','2048')?>"></div>
       <div class="field">

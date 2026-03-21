@@ -11,6 +11,40 @@ $logs        = $pdo->query('SELECT * FROM cron_log ORDER BY ran_at DESC LIMIT 10
 $totalCost   = $pdo->query('SELECT COALESCE(SUM(cost_usd),0) FROM cron_log')->fetchColumn();
 $totalTokens = $pdo->query('SELECT COALESCE(SUM(tokens_used),0) FROM cron_log')->fetchColumn();
 
+// Model cost breakdown — check if column exists first
+$modelBreakdown = [];
+try {
+    $modelBreakdown = $pdo->query(
+        "SELECT COALESCE(model_used, 'unknown') AS model,
+                COUNT(*) AS runs,
+                COALESCE(SUM(tokens_used),0) AS tokens,
+                COALESCE(SUM(cost_usd),0) AS cost
+         FROM cron_log
+         WHERE cost_usd > 0
+         GROUP BY model_used
+         ORDER BY cost DESC"
+    )->fetchAll();
+} catch (PDOException $e) {
+    // model_used column doesn't exist yet — skip
+}
+
+// Provider-level aggregation
+$providerCosts = [];
+if ($modelBreakdown) {
+    require_once __DIR__ . '/../includes/llm.php';
+    foreach ($modelBreakdown as $row) {
+        $info = getModelInfo($row['model']);
+        $provider = ucfirst($info['provider']);
+        if (!isset($providerCosts[$provider])) {
+            $providerCosts[$provider] = ['runs' => 0, 'tokens' => 0, 'cost' => 0];
+        }
+        $providerCosts[$provider]['runs']   += $row['runs'];
+        $providerCosts[$provider]['tokens'] += $row['tokens'];
+        $providerCosts[$provider]['cost']   += $row['cost'];
+    }
+    arsort($providerCosts);
+}
+
 $cronJobs = [
     'generate_stories' => [
         'label' => 'Generate Stories',
@@ -88,8 +122,10 @@ tr:hover td{background:#211F1A;}
 <header><h1>Cron Log</h1>
   <nav>
     <a href="/admin/">Dashboard</a><a href="/admin/articles.php">Articles</a>
-    <a href="/admin/generate.php">Generate</a><a href="/admin/settings.php">Settings</a>
-    <a href="/admin/cron_log.php">Cron Log</a><a href="/admin/?logout=1">Logout</a>
+    <a href="/admin/generate.php">Generate</a><a href="/admin/staff.php">Staff</a>
+    <a href="/admin/settings.php">Settings</a><a href="/admin/analytics.php">Analytics</a>
+    <a href="/admin/cron_log.php">Cron Log</a><a href="/" target="_blank">View Site</a>
+    <a href="/admin/?logout=1">Logout</a>
   </nav>
 </header>
 
@@ -101,6 +137,63 @@ tr:hover td{background:#211F1A;}
     <div class="stat"><div class="stat-l">Total API Cost</div><div class="stat-v">$<?=number_format($totalCost,2)?></div></div>
     <div class="stat"><div class="stat-l">Avg Cost/Run</div><div class="stat-v">$<?=count($logs)?number_format($totalCost/count($logs),4):'0.00'?></div></div>
   </div>
+
+  <!-- Model Cost Breakdown -->
+  <?php if ($modelBreakdown): ?>
+  <div class="run-panel">
+    <h2>Cost Breakdown by Model</h2>
+
+    <?php if ($providerCosts): ?>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:20px;">
+      <?php
+      $providerColors = ['Anthropic'=>'#C8960F','Openai'=>'#10A37F','Mistral'=>'#FF7000','Openrouter'=>'#6366F1','Unknown'=>'#6A6460'];
+      foreach ($providerCosts as $provider => $pc):
+        $color = $providerColors[$provider] ?? '#6A6460';
+        $pct = $totalCost > 0 ? round($pc['cost'] / $totalCost * 100, 1) : 0;
+      ?>
+      <div style="background:var(--sf);border:1px solid var(--bd);border-left:3px solid <?=$color?>;padding:14px 16px;">
+        <div style="font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:<?=$color?>;margin-bottom:6px;"><?=e($provider)?></div>
+        <div style="font-size:20px;color:<?=$color?>;">$<?=number_format($pc['cost'],2)?></div>
+        <div style="font-size:10px;color:var(--mu);margin-top:4px;">
+          <?=number_format($pc['runs'])?> runs · <?=number_format($pc['tokens'])?> tokens · <?=$pct?>%
+        </div>
+      </div>
+      <?php endforeach; ?>
+    </div>
+    <?php endif; ?>
+
+    <table style="margin-bottom:24px;">
+      <thead><tr>
+        <th>Model</th><th>Provider</th><th>Runs</th><th>Tokens</th><th>Cost</th><th>% of Total</th><th>Avg/Run</th>
+      </tr></thead>
+      <tbody>
+        <?php foreach ($modelBreakdown as $mb):
+          $info = getModelInfo($mb['model']);
+          $pct  = $totalCost > 0 ? round($mb['cost'] / $totalCost * 100, 1) : 0;
+          $avg  = $mb['runs'] > 0 ? $mb['cost'] / $mb['runs'] : 0;
+          $provColor = $providerColors[ucfirst($info['provider'])] ?? '#6A6460';
+        ?>
+        <tr>
+          <td style="color:var(--gd);"><?=e($info['label'])?></td>
+          <td><span style="color:<?=$provColor?>;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;"><?=e(ucfirst($info['provider']))?></span></td>
+          <td><?=number_format($mb['runs'])?></td>
+          <td><?=number_format($mb['tokens'])?></td>
+          <td>$<?=number_format($mb['cost'],4)?></td>
+          <td>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <div style="width:60px;height:4px;background:#1A1714;overflow:hidden;">
+                <div style="width:<?=min(100,$pct)?>%;height:100%;background:<?=$provColor?>;"></div>
+              </div>
+              <span style="font-size:10px;"><?=$pct?>%</span>
+            </div>
+          </td>
+          <td style="color:var(--mu);">$<?=number_format($avg,4)?></td>
+        </tr>
+        <?php endforeach; ?>
+      </tbody>
+    </table>
+  </div>
+  <?php endif; ?>
 
   <!-- Manual run panel -->
   <div class="run-panel">
@@ -141,7 +234,7 @@ tr:hover td{background:#211F1A;}
   </h2>
   <table>
     <thead><tr>
-      <th>#</th><th>Job</th><th>Status</th><th>Generated</th><th>Published</th>
+      <th>#</th><th>Job</th><th>Model</th><th>Status</th><th>Generated</th><th>Published</th>
       <th>Tokens</th><th>Cost</th><th>Error</th><th>Ran At</th>
     </tr></thead>
     <tbody>
@@ -149,6 +242,7 @@ tr:hover td{background:#211F1A;}
       <tr>
         <td style="color:var(--mu);"><?=$l['id']?></td>
         <td><?=e($l['job_name'])?></td>
+        <td style="font-size:10px;color:var(--mu);"><?=e($l['model_used'] ?? '—')?></td>
         <td><span class="<?=$l['status']?>"><?=$l['status']?></span></td>
         <td><?=$l['articles_generated']?:'—'?></td>
         <td><?=$l['articles_published']?:'—'?></td>
